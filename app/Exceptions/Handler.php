@@ -68,6 +68,10 @@ class Handler extends ExceptionHandler
                 case 'Illuminate\Routing\Exceptions\InvalidSignatureException':
                     return response()->json(['message' => 'Invalid signature.'], 403, $headers);
                     break;
+                
+                case 'Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException':
+                    return response()->json(['message' => 'Method not supported for this route.'], 405, $headers);
+                    break;
             }
         }
         

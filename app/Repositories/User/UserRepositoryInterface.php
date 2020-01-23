@@ -12,7 +12,7 @@ interface UserRepositoryInterface
      * 
      * @param array $query
      * @param boolean $paginate = false
-     * @return [User]
+     * @return [User] / LengthAwarePaginator
      */
     public function datatableList(array $query, $paginate = false);
 

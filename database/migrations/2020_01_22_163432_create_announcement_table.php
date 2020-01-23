@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUsergroupsTable extends Migration
+class CreateAnnouncementTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,14 @@ class CreateUsergroupsTable extends Migration
      */
     public function up()
     {
-        Schema::create('usergroups', function (Blueprint $table) {
+        Schema::create('announcements', function (Blueprint $table) 
+        {
             $table->bigIncrements('id');
-            $table->string('name', 100);
-            $table->string('code', 100)->unique();
+            $table->string('title');
+            $table->text('content');
+            $table->dateTime('schedule_at')->nullable();
             $table->string('status', 100);
-            $table->boolean('isAdmin')->default(false);
+            $table->boolean('send_notification')->default(false);
             $table->softDeletes();
             $table->bigInteger('created_by')->unsigned()->nullable();
             $table->bigInteger('updated_by')->unsigned()->nullable();
@@ -33,6 +35,6 @@ class CreateUsergroupsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('usergroups');
+        Schema::dropIfExists('announcements');
     }
 }

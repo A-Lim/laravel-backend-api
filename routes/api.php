@@ -35,6 +35,21 @@ Route::prefix('v1')->group(function () {
         Route::patch('usergroups/{userGroup}', 'UserGroupController@update');
         Route::delete('usergroups/{userGroup}', 'UserGroupController@delete');
     });
+
+    /**** SystemSettings ****/
+    Route::namespace('API\v1\SystemSetting')->group(function () {
+        Route::get('systemsettings', 'SystemSettingController@list');
+        Route::patch('systemsettings', 'SystemSettingController@update');
+    });
+
+    /**** SystemSettings ****/
+    Route::namespace('API\v1\Announcement')->group(function () {
+        Route::get('announcements', 'AnnouncementController@list');
+        Route::get('announcements/{announcement}', 'AnnouncementController@details');
+        Route::post('announcements', 'AnnouncementController@create');
+        Route::patch('announcements/{announcement}', 'AnnouncementController@update');
+        Route::delete('announcements/{announcement}', 'AnnouncementController@delete');
+    });
 });
 
 

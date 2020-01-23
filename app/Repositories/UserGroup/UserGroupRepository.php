@@ -30,6 +30,7 @@ class UserGroupRepository implements UserGroupRepositoryInterface {
      */
     public function create($data) {
         $data['deleted_at'] = null;
+        $data['created_by'] = auth()->id();
         $userGroup = UserGroup::withTrashed()->updateOrCreate(
             ['code' => $data['code']],
             $data
@@ -48,6 +49,8 @@ class UserGroupRepository implements UserGroupRepositoryInterface {
      * {@inheritdoc}
      */
     public function update(UserGroup $userGroup, $data) {
+        $data['updated_by'] = auth()->id();
+
         if (!empty($data['code']))
             unset($data['code']);
 
@@ -60,10 +63,14 @@ class UserGroupRepository implements UserGroupRepositoryInterface {
      * {@inheritdoc}
      */
     public function delete(Usergroup $userGroup, $forceDelete = false) {
-        if ($forceDelete)
+        if ($forceDelete) {
             $userGroup->forceDelete();
-        else
-            $userGroup->delete();
+        } else {
+            $data['updated_by'] = auth()->id();
+            $data['deleted_at'] = Carbon::now()->format('Y-m-d H:i:s');
+            $userGroup->fill($data);
+            $userGroup->save();
+        }
     }
 
     /**

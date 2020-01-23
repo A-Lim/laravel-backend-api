@@ -8,7 +8,7 @@ class UserGroup extends Model {
     use SoftDeletes;
 
     protected $table = 'usergroups';
-    protected $fillable = ['name', 'code', 'status', 'isAdmin', 'deleted_at'];
+    protected $fillable = ['name', 'code', 'status', 'isAdmin', 'deleted_at', 'created_by', 'updated_by'];
     protected $hidden = ['deleted_at', 'pivot'];
     protected $casts = ['isAdmin' => 'boolean'];
 

@@ -8,5 +8,7 @@ class RepositoryServiceProvider extends ServiceProvider {
         $this->app->bind('App\Repositories\Auth\OAuthRepositoryInterface', 'App\Repositories\Auth\OAuthRepository');
         $this->app->bind('App\Repositories\User\UserRepositoryInterface', 'App\Repositories\User\UserRepository');
         $this->app->bind('App\Repositories\UserGroup\UserGroupRepositoryInterface', 'App\Repositories\UserGroup\UserGroupRepository');
+        $this->app->bind('App\Repositories\SystemSetting\SystemSettingRepositoryInterface', 'App\Repositories\SystemSetting\SystemSettingRepository');
+        $this->app->bind('App\Repositories\Announcement\AnnouncementRepositoryInterface', 'App\Repositories\Announcement\AnnouncementRepository');
     }
 }

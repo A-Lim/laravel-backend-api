@@ -8,6 +8,7 @@ class DatabaseSeeder extends Seeder {
             UsersTableSeeder::class,
             PermissionsTableSeeder::class,
             UserGroupsTableSeeder::class,
+            SystemSettingsTableSeeder::class,
         ]);
     }
 }
