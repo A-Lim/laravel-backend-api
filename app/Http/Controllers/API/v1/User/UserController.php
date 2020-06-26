@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 use App\User;
+use App\Http\Resources\Users\UserResource;
+use App\Http\Resources\Users\UserCollection;
 use App\Repositories\User\UserRepositoryInterface;
 
 use App\Http\Requests\User\UpdateRequest;
@@ -50,29 +52,33 @@ class UserController extends ApiController {
         }
 
         $user = $this->userRepository->update(auth()->user(), $data);
-        return $this->responseWithMessageAndData(200, $user, 'Profile updated.');  
+        $userResource = new UserResource($user);
+        return $this->responseWithMessageAndData(200, $userResource, 'Profile updated.');  
     }
 
     public function uploadProfileAvatar(UploadAvatarRequest $request) {
         $imagePaths = $this->userRepository->saveAvatar(auth()->user(), $request->file('avatar'));
-        return $this->responseWithData(200, $imagePaths);
+        return $this->responseWithMessageAndData(200, $imagePaths, 'Profile avatar updated.');
     }
 
     public function uploadUserAvatar(UploadAvatarRequest $request, User $user) {
         $imagePaths = $this->userRepository->saveAvatar($user, $request->file('avatar'));
-        return $this->responseWithData(200, $imagePaths);
+        return $this->responseWithMessageAndData(200, $imagePaths, 'User avatar updated.');
     }
  
     public function details(User $user) {
         $this->authorize('view', $user);
-        return $this->responseWithData(200, $user); 
+        $user = $this->userRepository->findWithUserGroups($user->id);
+        $userResource = new UserResource($user);
+        return $this->responseWithData(200, $userResource); 
     }
 
     public function update(UpdateRequest $request, User $user) {
         $this->authorize('update', $user);
-        $data = $request->only(['name']);
-        $userGroup = $this->userRepository->update($user, $data);
-        return $this->responseWithMessageAndData(200, $user, 'Updated'); 
+        $data = $request->only(['name', 'status', 'usergroups']);
+        $user = $this->userRepository->update($user, $data);
+        $userResource = new UserResource($user);
+        return $this->responseWithMessageAndData(200, $userResource, 'User updated.'); 
     }
 
 }

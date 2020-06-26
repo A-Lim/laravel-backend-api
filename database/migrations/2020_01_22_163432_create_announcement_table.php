@@ -19,7 +19,7 @@ class CreateAnnouncementTable extends Migration
             $table->string('title');
             $table->text('content');
             $table->dateTime('schedule_at')->nullable();
-            $table->string('status', 100);
+            $table->string('status', 20);
             $table->boolean('send_notification')->default(false);
             $table->softDeletes();
             $table->bigInteger('created_by')->unsigned()->nullable();

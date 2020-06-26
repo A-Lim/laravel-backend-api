@@ -50,9 +50,20 @@ Route::prefix('v1')->group(function () {
         Route::patch('announcements/{announcement}', 'AnnouncementController@update');
         Route::delete('announcements/{announcement}', 'AnnouncementController@delete');
     });
+
+    /**** Products ****/
+     Route::namespace('API\v1\Product')->group(function () {
+        Route::get('products', 'ProductController@list');
+        Route::get('products/{product}', 'ProductController@details');
+        Route::post('products', 'ProductController@create');
+        Route::patch('products/{product}', 'ProductController@update');
+        Route::delete('products/{product}', 'ProductController@delete');
+    });
+
+    /**** Contacts ****/
+    Route::namespace('API\v1\Contact')->group(function () {
+        Route::get('contacts', 'ContactController@list');
+        Route::get('contacts/{contact}', 'ContactController@details');
+    });
+
 });
-
-
-// Route::middleware('auth:api')->get('/user', function (Request $request) {
-//     return $request->user();
-// });

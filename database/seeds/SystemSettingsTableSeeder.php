@@ -16,9 +16,16 @@ class SystemSettingsTableSeeder extends Seeder {
         $now = Carbon::now();
         $generalCategory = SystemSettingCategory::create(['name' => 'General']);
         $authCategory = SystemSettingCategory::create(['name' => 'Authentication']);
+        $storeCategory = SystemSettingCategory::create(['name' => 'Store']);
+        $paymentCategory = SystemSettingCategory::create(['name' => 'Payment']);
 
         $systemsettings = [
             ['systemsettingcategory_id' => $generalCategory->id, 'name' => 'FrontEnd URL', 'code' => 'frontend_url', 'description' => '', 'value' => '', 'created_at' => $now, 'updated_at' => $now],
+            ['systemsettingcategory_id' => $storeCategory->id, 'name' => 'Currency', 'code' => 'currency', 'description' => '', 'value' => 'USD', 'created_at' => $now, 'updated_at' => $now],
+            ['systemsettingcategory_id' => $paymentCategory->id, 'name' => 'Stripe Key', 'code' => 'stripekey', 'description' => '', 'value' => '', 'created_at' => $now, 'updated_at' => $now],
+            ['systemsettingcategory_id' => $paymentCategory->id, 'name' => 'Stripe Secret', 'code' => 'stripesecret', 'description' => '', 'value' => '', 'created_at' => $now, 'updated_at' => $now],
+            ['systemsettingcategory_id' => $paymentCategory->id, 'name' => 'PayPal Key', 'code' => 'palpalkey', 'description' => 'PayPal Client ID', 'value' => '', 'created_at' => $now, 'updated_at' => $now],
+            ['systemsettingcategory_id' => $paymentCategory->id, 'name' => 'Stripe Secret', 'code' => 'palpalsecret', 'description' => 'Paypal Secret', 'value' => '', 'created_at' => $now, 'updated_at' => $now],
         ];
 
         SystemSetting::insert($systemsettings);

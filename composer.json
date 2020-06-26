@@ -14,7 +14,10 @@
         "intervention/image": "^2.5",
         "laravel/framework": "6.0.*",
         "laravel/passport": "^8.0",
-        "laravel/tinker": "^1.0"
+        "laravel/tinker": "^1.0",
+        "paypal/rest-api-sdk-php": "^1.14",
+        "spatie/laravel-cors": "^1.6",
+        "stripe/stripe-php": "^7.33"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

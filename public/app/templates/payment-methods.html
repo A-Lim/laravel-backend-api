@@ -1,0 +1,127 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="accordion">
+      <div class="card credit-debit">
+        <div class="card-header">
+          <label>
+            <input type="radio"
+              ng-model="paymentmethod" 
+              ng-change="paymentMethodSelected()" 
+              name="payment_method" 
+              value="credit_debit_cards" />
+            Credit & Debit Cards 
+            <ul class="payment-methods-icons">
+              <li><img src="/img/payment-icons/visa.png" alt="Visa" /></li>
+              <li><img src="/img/payment-icons/mastercard.png" alt="Mastercard" /></li>
+            </ul>
+          </label>
+        </div>
+
+        <div class="collapse"
+          ng-class="{
+            'in': paymentmethod === 'credit_debit_cards'
+          }">
+          <div class="card-body">
+            <form id="cc-payment-form" name="ccForm" novalidate>
+              <div class="row">
+                <div class="col-md-6 form-group"
+                  ng-class="{ 'has-error': ccForm.name.$touched && ccForm.name.$invalid }">
+
+                  <input type="text" class="form-control" name="name" ng-model="data.name"
+                    placeholder="Name" ng-required="paymentmethod == 'credit_debit_cards'" />
+
+                  <div ng-if="ccForm.name.$touched">
+                    <span ng-show="ccForm.name.$error.required" class="validation-msg">Name is required.</span>
+                  </div>
+
+                </div>
+
+                <div class="col-md-6 form-group"
+                  ng-class="{ 'has-error': ccForm.email.$touched && ccForm.email.$invalid }">
+                  
+                  <input type="email" class="form-control" name="email" ng-model="data.email"
+                    placeholder="Email" ng-required="paymentmethod == 'credit_debit_cards'"/>
+                  
+                  <div ng-if="ccForm.email.$touched">
+                    <span ng-show="ccForm.email.$error.required" class="validation-msg">Email is required.</span>
+                    <span ng-show="ccForm.email.$error.email" class="validation-msg">Email is invalid.</span>
+                  </div>
+
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-12 form-group">
+                  <div id="card-element"></div>
+                  <span id="card-errors" class="validation-msg">{{ stripeError }}</span>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="card paypal">
+        <div class="card-header">
+          <label>
+            <input type="radio" ng-model="paymentmethod" name="payment_method" value="paypal" />
+            Paypal
+            <ul class="payment-methods-icons">
+              <li><img src="/img/payment-icons/paypal.png" alt="paypal" /></li>
+            </ul>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div ng-class="{ loading: isLoading }"
+    class="col-md-4">
+    <div class="order-summary-panel">
+      <h6>Order Summary</h6>
+      <hr/>
+
+      <!-- <div class="order-item-summary">
+        <div><strong>Reference No.</strong></div>
+        <span>{{ order.refNo }}</span>
+      </div>
+      <hr/> -->
+      
+      <div class="order-item" ng-repeat="item in order.items">
+        <div class="order-item-summary">
+          <div class="order-item-detail">
+            <div>{{ item.name }}</div>
+            <div class="item-description">{{ item.description }}</div>
+          </div>
+          <span class="price">${{ item.quantity * item.unit_price }}</span>
+        </div>
+      </div>
+      <hr/>
+      <div class="order-item-summary">
+        <span>SubTotal</span><span class="price">${{ subTotal }}</span>
+      </div>
+      <hr/>
+      <div class="order-item-summary">
+        <span><strong>Total</strong></span><span class="price">${{ total }}</span>
+      </div>
+      <div class="order-item-summary">
+        <span>Delivery Time</span><span class="delivery-time">{{ delivery_days }} {{ delivery_days <= 1 ? 'Day' : 'Days' }}</span>
+      </div>
+      <form method="post" novalidate ng-submit="checkout()">
+        <input type="hidden" name="_token" value="{{ token }}" />
+        <!-- ng-disabled="paymentmethod == null || isLoading || !stripeCardComplete || ccForm.$pristine || !ccForm.$valid"  -->
+        <button 
+          
+          class="btn btn-checkout" type="submit">
+          <i ng-if="isLoading" class="fa fa-circle-o-notch fa-spin"></i>&nbsp; Confirm And Pay
+        </button>
+        <p class="help-text text-center"><i class="fa fa-lock"></i> SSL Secure Payment</p>
+      </form>
+    </div>
+    <div class="payment-icons-container">
+      <ul class="payment-methods-icons">
+        <li><img src="/img/payment-icons/visa.png" alt="Visa" /></li>
+        <li><img src="/img/payment-icons/mastercard.png" alt="Mastercard" /></li>
+        <li><img src="/img/payment-icons/paypal.png" alt="PayPal" /></li>
+      </ul>
+    </div>
+  </div>
+</div>

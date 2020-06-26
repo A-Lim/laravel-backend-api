@@ -19,19 +19,26 @@ class SystemSettingRepository implements SystemSettingRepositoryInterface {
         });
     }
 
-     /**
+    /**
      * {@inheritdoc}
      */
     public function findByCode(string $code) {
-        return Cache::rememberForEver(SystemSetting::CACHE_KEY.'_'.$code, function() {
+        return Cache::rememberForEver(SystemSetting::CACHE_KEY.'_'.$code, function() use ($code) {
             return SystemSetting::where('code', $code)->first();
         });
     }
 
-     /**
+    /**
      * {@inheritdoc}
      */
-    public function update($data) {
+    public function findByCodes(array $codes) {
+        return SystemSetting::whereIn('code', $codes)->get();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function update(array $data) {
         // https://github.com/laravel/ideas/issues/575
         // update multiple values based on code
         // ['code' => 'value']

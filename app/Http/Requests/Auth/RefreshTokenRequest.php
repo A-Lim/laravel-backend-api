@@ -15,7 +15,7 @@ class RefreshTokenRequest extends CustomFormRequest {
 
     public function rules() {
         return [
-            'refresh_token' => 'required|string'
+            'refreshToken' => 'required|string'
         ];
     }
 }

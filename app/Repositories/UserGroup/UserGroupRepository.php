@@ -8,14 +8,13 @@ class UserGroupRepository implements UserGroupRepositoryInterface {
      /**
      * {@inheritdoc}
      */
-    public function datatableList($data, $paginate = false) {
-        $query = UserGroup::query();
-        $this->buildQuery($query, $data);
+    public function list($data) {
+        $query = UserGroup::buildQuery($data);
 
-        if ($paginate)
+        if (isset($data['all']) && $data['all'] == true)
+            return $query->get();
+        else
             return $query->paginate(10);
-
-        return $query->get();
     }
     
     /**

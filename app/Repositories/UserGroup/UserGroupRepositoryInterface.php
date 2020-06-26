@@ -12,7 +12,7 @@ interface UserGroupRepositoryInterface
      * @param boolean $paginate = false
      * @return [UserGroup]
      */
-    public function datatableList($query, $paginate = false);
+    public function list($query);
 
     /**
      * Find usergroup from id

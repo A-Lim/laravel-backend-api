@@ -22,7 +22,7 @@ class UserGroupController extends ApiController {
     
     public function list(Request $request) {
         $this->authorize('viewAny', UserGroup::class);
-        $userGroups = $this->userGroupRepository->datatableList($request->all(), true);
+        $userGroups = $this->userGroupRepository->list($request->all(), true);
         return $this->responseWithData(200, $userGroups);
     }
 
@@ -40,12 +40,12 @@ class UserGroupController extends ApiController {
     public function update(UpdateRequest $request, UserGroup $userGroup) {
         $this->authorize('update', $userGroup);
         $userGroup = $this->userGroupRepository->update($userGroup, $request->all());
-        return $this->responseWithMessageAndData(200, $userGroup, 'Updated'); 
+        return $this->responseWithMessageAndData(200, $userGroup, 'User group updated.'); 
     }
 
     public function delete(UserGroup $userGroup) {
         $this->authorize('delete', $userGroup);
         $this->userGroupRepository->delete($userGroup);
-        return $this->responseWithMessage(200, 'Deleted');
+        return $this->responseWithMessage(200, 'User group deleted.');
     }
 }

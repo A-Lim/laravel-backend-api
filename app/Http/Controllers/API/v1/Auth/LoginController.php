@@ -81,7 +81,7 @@ class LoginController extends ApiController {
 
         $data = [
             'grant_type' => config('constants.oAuth.grant_type_refresh_token'),
-            'refresh_token' => $request->refresh_token,
+            'refresh_token' => $request->refreshToken,
             'client_id' => $client->id,
             'client_secret' => $client->secret,
             'scope' => '',

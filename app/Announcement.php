@@ -4,14 +4,17 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use App\Announcement;
+use App\Http\Traits\CustomQuery;
 
 class Announcement extends Model {
-    use SoftDeletes;
+    use SoftDeletes, CustomQuery;
 
     protected $fillable = ['title', 'content', 'status', 'send_notification', 'schedule_at', 'deleted_at', 'created_by', 'updated_by'];
     protected $hidden = ['deleted_at', 'pivot'];
     protected $casts = [];
+
+    // list of properties queryable for datatable
+    public static $queryable = ['title', 'content', 'status', 'send_notification', 'schedule_at', 'deleted_at', 'created_by', 'updated_by'];
 
     public const TYPE_EMAIL = 'email';
     public const TYPE_WEB = 'web';

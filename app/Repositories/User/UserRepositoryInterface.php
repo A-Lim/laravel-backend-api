@@ -25,6 +25,14 @@ interface UserRepositoryInterface
     public function find($id);
 
     /**
+     * Find user from id with usergroups
+     * 
+     * @param integer $id
+     * @return User
+     */
+    public function findWithUserGroups($id);
+    
+    /**
      * Find user based on params
      * 
      * @param array $params

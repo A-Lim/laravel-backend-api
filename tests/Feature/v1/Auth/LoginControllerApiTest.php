@@ -18,10 +18,10 @@ class LoginControllerApiTest extends ApiTestCase {
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'token_type',
+                'tokenType',
                 'expiresIn',
-                'access_token',
-                'refresh_token',
+                'accessToken',
+                'refreshToken',
                 'user'
             ]
         ]);

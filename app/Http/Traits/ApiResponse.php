@@ -6,6 +6,11 @@ use Symfony\Component\HttpFoundation\Response;
 trait ApiResponse {
     protected $headers = ['Content-Type', 'application/json'];
 
+    public function responseWithRedirect($statusCode, $redirect) {
+        return response()
+            ->json(['redirect' => $redirect], $statusCode, $this->headers);
+    }
+
     public function responseWithData($statusCode, $data) {
         return response()
             ->json(['data' => $data], $statusCode, $this->headers);
@@ -21,6 +26,11 @@ trait ApiResponse {
             ->json(['message' => $message], $statusCode, $this->headers);
     }
 
+    public function responseWithMessageAndRedirect($statusCode, $message, $redirect) {
+        return response()
+            ->json(['message' => $message, 'redirect' => $redirect], $statusCode, $this->headers);
+    }
+
     public function responseWithMessageAndData($statusCode, $data, $message) {
         return response()
             ->json(['data' => $data, 'message' => $message], $statusCode, $this->headers);
@@ -32,16 +42,22 @@ trait ApiResponse {
     }
 
     public function responseWithToken($statusCode, $token) {
+        $data = [
+            'tokenType' => $token->token_type,
+            'expiresIn' => $token->expires_in,
+            'accessToken' => $token->access_token,
+            'refreshToken' => $token->refresh_token,
+        ];
         return response()
-            ->json($token, $statusCode, $this->headers);
+            ->json(['data' => $data], $statusCode, $this->headers);
     }
 
     public function responseWithTokenAndUser($statusCode, $token, $user) {
         $data = [
-            'token_type' => $token->token_type,
+            'tokenType' => $token->token_type,
             'expiresIn' => $token->expires_in,
-            'access_token' => $token->access_token,
-            'refresh_token' => $token->refresh_token,
+            'accessToken' => $token->access_token,
+            'refreshToken' => $token->refresh_token,
             'user' => $user
         ];
         return response()

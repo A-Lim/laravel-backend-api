@@ -22,7 +22,7 @@ class AnnouncementController extends ApiController {
 
     public function list(Request $request) {
         $this->authorize('viewAny', Announcement::class);
-        $announcements = $this->announcementRepository->datatableList($request->all(), true);
+        $announcements = $this->announcementRepository->list($request->all(), true);
         return $this->responseWithData(200, $announcements);
     }
 

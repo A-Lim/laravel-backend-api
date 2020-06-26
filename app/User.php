@@ -8,14 +8,18 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Passport\HasApiTokens;
 use App\Notifications\CustomResetPassword;
 use App\Notifications\CustomVerifyEmail;
-use App\Traits\HasUserGroups;
+use App\Http\Traits\HasUserGroups;
+use App\Http\Traits\CustomQuery;
 
 class User extends Authenticatable {
-    use Notifiable, HasApiTokens, HasUserGroups;
+    use Notifiable, HasApiTokens, HasUserGroups, CustomQuery;
 
     protected $fillable = ['name', 'email', 'password', 'avatar', 'email_verified_at', 'status'];
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token', 'created_at', 'updated_at'];
     protected $casts = ['email_verified_at' => 'datetime'];
+
+    // list of properties queryable for datatable
+    public static $queryable = ['name', 'email', 'status'];
 
     const STATUS_ACTIVE = 'active';
     const STATUS_LOCKED = 'locked';

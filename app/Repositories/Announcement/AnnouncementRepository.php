@@ -9,9 +9,8 @@ class AnnouncementRepository implements AnnouncementRepositoryInterface {
      /**
      * {@inheritdoc}
      */
-    public function datatableList($data, $paginate = false) {
-        $query = Announcement::query();
-        $this->buildQuery($query, $data);
+    public function list($data, $paginate = false) {
+        $query = Announcement::buildQuery($data);
 
         if ($paginate)
             return $query->paginate(10);
@@ -70,21 +69,5 @@ class AnnouncementRepository implements AnnouncementRepositoryInterface {
         }
 
         return $status;
-    }
-
-    /**
-     * Build query based on allowed keys
-     * 
-     * @param Builder &$query
-     * @param array $data
-     */
-    private function buildQuery(&$query, array $data) {
-        $allowed = ['title', 'content', 'status', 'send_notification', 'schedule_at'];
-
-        foreach ($data as $key => $value) {
-            if (in_array($key, $allowed)) {
-                $query->where($key, 'LIKE', '%'.$value.'%');
-            }
-        }
     }
 }

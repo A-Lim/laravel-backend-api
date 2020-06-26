@@ -6,6 +6,7 @@ use Illuminate\Http\Response;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\ValidationException;
 
 class CustomFormRequest extends FormRequest {
     protected $message = 'The given data was invalid.';
@@ -15,11 +16,18 @@ class CustomFormRequest extends FormRequest {
     }
 
     protected function failedValidation(Validator $validator) {
-        $data = [
-            'message' => $this->message,
-            'errors' => $validator->errors()
-        ];
-        
-        throw new HttpResponseException(response()->json($data, Response::HTTP_UNPROCESSABLE_ENTITY));
+        // if request has accept application/json
+        if (request()->wantsJson()) {
+            $data = [
+                'message' => $this->message,
+                'errors' => $validator->errors()
+            ];
+            
+            throw new HttpResponseException(response()->json($data, Response::HTTP_UNPROCESSABLE_ENTITY));
+        }
+
+        throw (new ValidationException($validator))
+                    ->errorBag($this->errorBag)
+                    ->redirectTo($this->getRedirectUrl());
     }
 }

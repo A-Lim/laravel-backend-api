@@ -11,7 +11,7 @@ interface AnnouncementRepositoryInterface {
      * @param boolean $paginate = false
      * @return array [Announcements] / LengthAwarePaginator
      */
-    public function datatableList($data, $paginate = false);
+    public function list($data, $paginate = false);
 
     /**
      * Create announcement

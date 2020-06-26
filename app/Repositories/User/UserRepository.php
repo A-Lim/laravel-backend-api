@@ -17,11 +17,10 @@ class UserRepository implements UserRepositoryInterface {
      * {@inheritdoc}
      */
     public function datatableList($data, $paginate = false) {
-        $query = User::query();
-        $this->buildQuery($query, $data);
+        $query = User::buildQuery($data);
 
         if ($paginate)
-            return $query->paginate(10);
+            return $query->paginate(isset($data['limit']) ? $data['limit'] : 10);
 
         return $query->get();
     }
@@ -31,6 +30,13 @@ class UserRepository implements UserRepositoryInterface {
      */
     public function find($id) {
         return User::find($id);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findWithUserGroups($id) {
+        return User::with('usergroups')->where('id', $id)->firstOrFail();
     }
 
     /**
@@ -54,6 +60,9 @@ class UserRepository implements UserRepositoryInterface {
     public function update(User $user, $data) {
         if (!empty($data['password']))
             $data['password'] = Hash::make($data['password']);
+
+        if ($data['usergroups'])
+            $user->userGroups()->sync($data['usergroups']);
 
         $user->fill($data);
         $user->save();
@@ -90,19 +99,19 @@ class UserRepository implements UserRepositoryInterface {
         return $user->avatar;
     }
 
-    /**
-     * Build query based on allowed keys
-     * 
-     * @param Builder &$query
-     * @param array $data
-     */
-    private function buildQuery(&$query, array $data) {
-        $allowed = ['name', 'email', 'status'];
+    // /**
+    //  * Build query based on allowed keys
+    //  * 
+    //  * @param Builder &$query
+    //  * @param array $data
+    //  */
+    // private function buildQuery(&$query, array $data) {
+    //     $allowed = ['name', 'email', 'status'];
 
-        foreach ($data as $key => $value) {
-            if (in_array($key, $allowed)) {
-                $query->where($key, 'LIKE', '%'.$value.'%');
-            }
-        }
-    }
+    //     foreach ($data as $key => $value) {
+    //         if (in_array($key, $allowed)) {
+    //             $query->where($key, 'LIKE', '%'.$value.'%');
+    //         }
+    //     }
+    // }
 }

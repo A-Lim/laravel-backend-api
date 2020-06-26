@@ -4,13 +4,18 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Http\Traits\CustomQuery;
+
 class UserGroup extends Model {
-    use SoftDeletes;
+    use SoftDeletes, CustomQuery;
 
     protected $table = 'usergroups';
     protected $fillable = ['name', 'code', 'status', 'isAdmin', 'deleted_at', 'created_by', 'updated_by'];
-    protected $hidden = ['deleted_at', 'pivot'];
+    protected $hidden = ['deleted_at', 'pivot', 'created_at', 'updated_at'];
     protected $casts = ['isAdmin' => 'boolean'];
+
+    // list of properties queryable for datatable
+    public static $queryable = ['name', 'code', 'status', 'isAdmin', 'deleted_at', 'created_by', 'updated_by'];
 
     const STATUS_ACTIVE = 'active';
     const STATUS_INACTIVE = 'inactive';
