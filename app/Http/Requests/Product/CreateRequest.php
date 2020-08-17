@@ -23,7 +23,8 @@ class CreateRequest extends CustomFormRequest {
             'price' => 'required',
             'seqNo' => 'required|integer',
             'delivery_days' => 'required|integer',
-            'highlighted' => 'required|boolean',
+            'custom' => 'nullable|boolean',
+            'highlighted' => 'nullable|boolean',
         ];
     }
 

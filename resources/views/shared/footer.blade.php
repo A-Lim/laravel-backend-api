@@ -4,8 +4,8 @@
       <div class="container">
         <div class="row">
           <div class="col-md-12 text-center">
-            <img class="logo" src="{{ asset('img/logo/logo.png') }}" alt="Translate Champ"/>
-            <p class="logo-text"><strong>TRANSLATE CHAMP</strong></p>
+            <img class="logo" src="{{ asset('img/logo/logo.png') }}" alt="{{ ucfirst(env('APP_NAME')) }}"/>
+            <p class="logo-text"><strong>{{ strtoupper(env('APP_NAME')) }}</strong></p>
           </div>
           <div class="col-md-12">
             <ul>
@@ -27,7 +27,7 @@
           <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="copyright text-center">
               <p>
-                &copy; {{ date("Y") }} Copyright <strong>TranslateChamp</strong>. All Rights Reserved
+                &copy; {{ date("Y") }} Copyright <strong>{{ ucfirst(env('APP_NAME')) }}</strong>. All Rights Reserved
               </p>
             </div>
           </div>

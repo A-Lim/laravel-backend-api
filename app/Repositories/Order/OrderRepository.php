@@ -7,6 +7,7 @@ use App\OrderRequirement;
 use App\OrderTransaction;
 use App\Product;
 use App\OrderItem;
+use App\OrderWorkItem;
 
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -16,14 +17,28 @@ class OrderRepository implements IOrderRepository {
     /**
      * {@inheritdoc}
      */
-    public function find($id) {
-        return Order::find($id);
+    public function find($id, $details = false, $requirement = false, $transactions = false, $workitems = false) {
+        $query = Order::where('id', $id);
+        
+        if ($details)
+            $query->with('items');
+
+        if ($requirement)
+            $query->with('requirement');
+        
+        if ($transactions)
+            $query->with('transactions');
+
+        if ($workitems)
+            $query->with('workitems');
+        
+        return $query->firstOrFail();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function findByRefNo($refNo, $details = false, $requirement = false) {
+    public function findByRefNo($refNo, $details = false, $requirement = false, $transactions = false) {
         $query = Order::where('refNo', $refNo);
         
         if ($details)
@@ -31,6 +46,9 @@ class OrderRepository implements IOrderRepository {
 
         if ($requirement)
             $query->with('requirement');
+
+        if ($transactions)
+            $query->with('transactions');
         
         return $query->firstOrFail();
     }
@@ -39,7 +57,7 @@ class OrderRepository implements IOrderRepository {
      * {@inheritdoc}
      */
     public function list($data, $paginate = false) {
-        $query = Order::buildQuery($data);
+        $query = Order::buildQuery($data)->orderBy('id', 'DESC');
 
         if ($paginate)
             return $query->paginate(10);
@@ -47,7 +65,7 @@ class OrderRepository implements IOrderRepository {
         return $query->get();
     }
 
-     /**
+    /**
      * {@inheritdoc}
      */
     public function create($cart, $currency) {
@@ -88,7 +106,7 @@ class OrderRepository implements IOrderRepository {
         return Order::with('items')->where('id', $order->id)->firstOrFail();
     }
 
-     /**
+    /**
      * {@inheritdoc}
      */
     public function update(Order $order, $data) {
@@ -97,10 +115,36 @@ class OrderRepository implements IOrderRepository {
         return $order;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function statistics($date) {
+        $orders_today = Order::whereDate('created_at', $date)->get();
+        $data['orders_today_count'] = count($orders_today);
+        $data['orders_today_total'] = $orders_today->sum('total');
+
+        return $data;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count_by_status(array $statuses) {
+        return DB::table('orders')->select('status', DB::raw('count(*) as total'))
+            ->whereIn('status', $statuses)
+            ->groupBy('status')
+            ->get();
+    }
+
+    public function create_work_item(Order $order, $data) {
+        $data['order_id'] = $order->id;
+        return OrderWorkItem::create($data);
+    }
 
     public function update_order_requirements(Order $order, $data) {
         $requirement = $order->requirement;
         $data['order_id'] = $order->id;
+        $data['submitted'] = true;
 
         if ($requirement != null)
             $requirement->update($data);

@@ -7,23 +7,23 @@
       <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
           <div class="section-headline text-center">
-              <h2>TRANSLATE CHAMP PRIVACY POLICY</h2>
+              <h2>{{ ucfirst(env('APP_NAME')) }} PRIVACY POLICY</h2>
             </div>
         </div>
       </div>
       
 
-      <h4>Privacy Policy for TranslateChamp</h4>
+      <h4>Privacy Policy for {{ ucfirst(env('APP_NAME')) }}</h4>
 
-      <p>At TranslateChamp, accessible from www.translatechamp.com, one of our main priorities 
+      <p>At {{ ucfirst(env('APP_NAME')) }}, accessible from www.translatechamp.com, one of our main priorities 
       is the privacy of our visitors. This Privacy Policy document contains types of information 
-      that is collected and recorded by TranslateChamp and how we use it.</p>
+      that is collected and recorded by {{ ucfirst(env('APP_NAME')) }} and how we use it.</p>
 
       <p>If you have additional questions or require more information about our Privacy Policy, 
       do not hesitate to contact us.</p>
 
       <p>This Privacy Policy applies only to our online activities and is valid for visitors to our 
-      website with regards to the information that they shared and/or collect in TranslateChamp. 
+      website with regards to the information that they shared and/or collect in {{ ucfirst(env('APP_NAME')) }}. 
       This policy is not applicable to any information collected offline or via channels other than 
       this website.</p>
 
@@ -64,7 +64,7 @@
 
       <h4>Log Files</h4>
 
-      <p>TranslateChamp follows a standard procedure of using log files. These files log visitors 
+      <p>{{ ucfirst(env('APP_NAME')) }} follows a standard procedure of using log files. These files log visitors 
       when they visit websites. All hosting companies do this and a part of hosting services' 
       analytics. The information collected by log files include internet protocol (IP) addresses, 
       browser type, Internet Service Provider (ISP), date and time stamp, referring/exit pages, and 
@@ -74,7 +74,7 @@
 
       <h4>Cookies and Web Beacons</h4>
 
-      <p>Like any other website, TranslateChamp uses 'cookies'. These cookies are used to store information 
+      <p>Like any other website, {{ ucfirst(env('APP_NAME')) }} uses 'cookies'. These cookies are used to store information 
       including visitors' preferences, and the pages on the website that the visitor accessed or visited. 
       The information is used to optimize the users' experience by customizing our web page content based on 
       visitors' browser type and/or other information.</p>
@@ -84,22 +84,22 @@
       <h4>Advertising Partners Privacy Policies</h4>
 
       <p>You may consult this list to find the Privacy Policy for each of the advertising partners 
-      of TranslateChamp.</p>
+      of {{ ucfirst(env('APP_NAME')) }}.</p>
 
       <p>Third-party ad servers or ad networks uses technologies like cookies, JavaScript, or Web Beacons 
-      that are used in their respective advertisements and links that appear on TranslateChamp, which are sent 
+      that are used in their respective advertisements and links that appear on {{ ucfirst(env('APP_NAME')) }}, which are sent 
       directly to users' browser. They automatically receive your IP address when this occurs. These 
       technologies are used to measure the effectiveness of their advertising campaigns and/or to personalize 
       the advertising content that you see on websites that you visit.</p>
 
-      <p>Note that TranslateChamp has no access to or control over these cookies that are used by third-party 
+      <p>Note that {{ ucfirst(env('APP_NAME')) }} has no access to or control over these cookies that are used by third-party 
       advertisers.</p>
 
       ​
 
       <h4>Third Party Privacy Policies</h4>
 
-      <p>TranslateChamp's Privacy Policy does not apply to other advertisers or websites. Thus, we are 
+      <p>{{ ucfirst(env('APP_NAME')) }}'s Privacy Policy does not apply to other advertisers or websites. Thus, we are 
       advising you to consult the respective Privacy Policies of these third-party ad servers for more detailed 
       information. It may include their practices and instructions about how to opt-out of certain options. </p>
 
@@ -143,7 +143,7 @@
       <p>Another part of our priority is adding protection for children while using the internet. We encourage 
       parents and guardians to observe, participate in, and/or monitor and guide their online activity. </p>
 
-      <p>TranslateChamp does not knowingly collect any Personal Identifiable Information from children under 
+      <p>{{ ucfirst(env('APP_NAME')) }} does not knowingly collect any Personal Identifiable Information from children under 
       the age of 13. If you think that your child provided this kind of information on our website, 
       we strongly encourage you to contact us immediately and we will do our best efforts to promptly remove 
       such information from our records.</p>

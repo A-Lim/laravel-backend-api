@@ -66,6 +66,7 @@ class StripeController extends Controller
         }
 
         DB::transaction(function () use ($order, $data, $charge) {
+            $order_data['email'] = $data['email'];
             if ($charge->paid)
                 $order_data['status'] = Order::STATUS_PAID;
             

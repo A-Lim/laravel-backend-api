@@ -17,8 +17,8 @@
                 </button>
               <!-- Brand -->
               <a class="navbar-brand page-scroll sticky-logo" href="{{ url('/') }}">
-                <img src="{{ asset('img/logo/logo-negative.png') }}" alt="Translate Champ"/>
-                <span><strong>TRANSLATE CHAMP</strong></span>
+                <img src="{{ asset('img/logo/logo-negative.png') }}" alt="{{ ucfirst(env('APP_NAME')) }}"/>
+                <span><strong>{{ strtoupper(env('APP_NAME')) }}</strong></span>
               </a>
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->

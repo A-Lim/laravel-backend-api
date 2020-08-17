@@ -13,8 +13,8 @@
               <!-- layer 1 -->
               <div class="layer-1-1 hidden-xs wow slideInDown" data-wow-duration="2s" data-wow-delay=".2s">
                 <div class="banner-logo">
-                  <img src="{{ asset('img/logo/logo-negative.png') }}" alt="Translate Champ"/>
-                  <h1><strong>TRANSLATE CHAMP</strong></h1>
+                  <img src="{{ asset('img/logo/logo-negative.png') }}" alt="{{ ucfirst(env('APP_NAME')) }}"/>
+                  <h1><strong>{{ strtoupper(env('APP_NAME')) }}</strong></h1>
                 </div>
               </div>
               <!-- layer 2 -->

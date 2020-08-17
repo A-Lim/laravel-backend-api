@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Order;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\File;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 
@@ -15,8 +13,7 @@ use App\Repositories\SystemSetting\SystemSettingRepositoryInterface;
 use App\Order;
 use App\Http\Traits\ApiResponse;
 use App\Http\Requests\Order\OrderRequirementRequest;
-
-
+use App\Events\OrderSuccess;
 
 class OrderController extends Controller
 {
@@ -36,13 +33,15 @@ class OrderController extends Controller
 
     public function details(Request $request, $refNo) {
         $order = $this->orderRepository->findByRefNo($refNo, true);
-        unset($order->id);
-        unset($order->status);
-        unset($order->password);
-        unset($order->payment_method);
-        unset($order->payment_details);
-        unset($order->created_at);
-        unset($order->updated_at);
+        unset(
+            $order->id, 
+            $order->status, 
+            $order->password, 
+            $order->payment_method, 
+            $order->payment_details, 
+            $order->created_at, 
+            $order->updated_at
+        );
 
         return $this->responseWithData(200, $order);
     }
@@ -86,41 +85,41 @@ class OrderController extends Controller
         if ($order->status !== Order::STATUS_PAID)
             return redirect('order/pay/'.$refNo);
 
-        unset($order->id);
-        unset($order->password);
-        unset($order->payment_method);
-        unset($order->payment_details);
-        unset($order->created_at);
-        unset($order->updated_at);
-
+        unset($order->id, $order->password, $order->payment_method, $order->payment_details, $order->created_at, $order->updated_at);
         return view('order.requirement', compact('order'));
     }
 
     public function submit_requirement(OrderRequirementRequest $request) {
-        $order = $this->orderRepository->findByRefNo($request->refNo);
+        $order = $this->orderRepository->findByRefNo($request->refNo, true, true);
 
         if ($order == null)
             abort(404);
     
         $data = $request->all();
+        // upload file to storage
+        $fileUploadData = $this->upload_requirement_file($request);
+        $data['file'] = $fileUploadData['file'];
+        $data['fileUrl'] = $fileUploadData['fileUrl'];
 
-        $file = $request->file('file');
-        $fileName = $file->getClientOriginalName();
-
-        $path = Storage::putFileAs('public/orders/'.$request->refNo, $file, $fileName);
-
-        $data['file'] = $path;
         $this->orderRepository->update_order_requirements($order, $data);
+        event(new OrderSuccess($order));
 
         return redirect('order/'.$order->refNo.'/thankyou');
     }
 
     public function order_submitted(Request $request, $refNo) {
         $order = $this->orderRepository->findByRefNo($refNo);
-
         if ($order == null)
             abort(404);
 
         return view('order.submitted');
+    }
+
+    private function upload_requirement_file(Request $request) {
+        $file = $request->file('file');
+        $fileName = $file->getClientOriginalName();
+
+        $path = Storage::disk('public')->putFileAs('orders/requirements/'.$request->refNo, $file, $fileName);
+        return ['file' => $fileName, 'fileUrl' => $path];
     }
 }

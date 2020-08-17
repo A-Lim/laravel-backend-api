@@ -3,13 +3,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OrderRequirement extends Model {
+class OrderWorkItem extends Model {
 
-    protected $fillable = ['order_id', 'submitted', 'name', 'email', 'description', 'file', 'fileUrl', 'fromLang', 'toLang', 'deliveryStatus'];
+    protected $fillable = ['order_id', 'file', 'fileUrl', 'externalFileUrl', 'message'];
     protected $hidden = [];
     protected $casts = [];
-
-    public $timestamps = false;
 
     /**
      * Model events

@@ -35,5 +35,21 @@ class Product extends Model {
      */
     public static function boot() {
         parent::boot();
+
+        self::updating(function($model) {
+            if (empty($model->highlighted))
+                $model->highlighted = false;
+            
+            if (empty($model->custom))
+                $model->custom = false;
+        });
+    }
+
+    public function setDescriptionAttribute($value) {
+        $this->attributes['description'] = htmlspecialchars($value);
+    }
+
+    public function getDescriptionAttribute($value) {
+        return htmlspecialchars_decode($value);
     }
 }

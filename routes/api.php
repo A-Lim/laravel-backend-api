@@ -66,4 +66,14 @@ Route::prefix('v1')->group(function () {
         Route::get('contacts/{contact}', 'ContactController@details');
     });
 
+    /**** Orders ****/
+    Route::namespace('API\v1\Order')->group(function () {
+        Route::get('orders', 'OrderController@list');
+        Route::get('orders/statistics', 'OrderController@statistics');
+        Route::get('orders/badges', 'OrderController@badges');
+        Route::get('orders/{order}', 'OrderController@details');
+
+        Route::post('orders/{order}/workitem', 'OrderController@submit_work_item');
+    });
+
 });

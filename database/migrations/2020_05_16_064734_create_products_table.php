@@ -21,7 +21,6 @@ class CreateProductsTable extends Migration
             $table->integer('seqNo');
             $table->integer('delivery_days');
             $table->boolean('highlighted')->default(false);
-            $table->boolean('active')->default(true);
             $table->boolean('custom')->default(false);
         });
     }

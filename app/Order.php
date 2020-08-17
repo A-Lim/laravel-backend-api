@@ -8,22 +8,27 @@ use App\Http\Traits\CustomQuery;
 class Order extends Model {
     use CustomQuery;
 
-    protected $fillable = ['currency', 'status', 'refNo', 'total', 'password', 'created_at', 'updated_at'];
+    protected $fillable = ['email', 'currency', 'status', 'refNo', 'total', 'password', 'created_at', 'updated_at'];
 
     protected $hidden = [];
-    protected $casts = [];
+    protected $casts = [
+        'created_at'  => 'datetime:d-m-Y H:i:s',
+        'updated_at' => 'datetime:d-m-Y H:i:s',
+    ];
 
     // list of properties queryable for datatable
-    public static $queryable = ['currency', 'status', 'refNo', 'total', 'password', 'created_at', 'updated_at'];
+    public static $queryable = ['email', 'currency', 'status', 'refNo', 'total', 'password', 'created_at', 'updated_at'];
 
     public const STATUS_PENDING = 'pending';
     public const STATUS_PAID = 'paid';
     public const STATUS_REFUNDED = 'refunded';
+    public const STATUS_COMPLETED = 'completed';
 
     public const STATUSES = [
         self::STATUS_PENDING,
         self::STATUS_PAID,
-        self::STATUS_REFUNDED
+        self::STATUS_REFUNDED,
+        self::STATUS_COMPLETED
     ];
 
     /**
@@ -45,6 +50,10 @@ class Order extends Model {
 
     public function items() {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function workitems() {
+        return $this->hasMany(OrderWorkItem::class);
     }
 
     public function markAsPaid() {

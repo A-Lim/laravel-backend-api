@@ -10,8 +10,11 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class OrderPaid
-{
+use App\Order;
+
+class OrderSuccess {
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
     public $order;
 
     public function __construct(Order $order) {

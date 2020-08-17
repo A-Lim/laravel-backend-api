@@ -7,19 +7,23 @@ interface IOrderRepository {
     /**
      * Find a order by id
      * 
-     * @param integer $id
+     * @param string $refNo
+     * @param bool $details
+     * @param bool $requirement
+     * @param bool $workitems
      * @return Order
      */
-    public function find($id);
+    public function find($id, $details = false, $requirement = false, $transactions = false, $workitems = false);
 
     /**
      * Find a order by reference no
      * 
      * @param string $refNo
      * @param bool $details
+     * @param bool $requirement
      * @return Order
      */
-    public function findByRefNo($refNo, $details, $requirement);
+    public function findByRefNo($refNo, $details, $requirement, $transactions = false);
 
      /**
      * List orders
@@ -47,6 +51,31 @@ interface IOrderRepository {
      * @return void
      */
     public function update(Order $order, $data);
+
+    /**
+     * Get statistics on orders
+     * 
+     * @param string $date
+     * @return array
+     */
+    public function statistics($date);
+
+    /**
+     * Return counts grouped by statuses
+     * 
+     * @param array $statuses
+     * @return array
+     */
+    public function count_by_status(array $statuses);
+
+    /**
+     * Create work item
+     * 
+     * @param Order $order
+     * @param array $data
+     * @return void
+     */
+    public function create_work_item(Order $order, $data);
 
     /**
      * Update an order requirement

@@ -11,8 +11,8 @@
             <div class="navbar-header">
               <!-- Brand -->
               <a class="navbar-brand page-scroll sticky-logo" href="{{ url('/') }}">
-                <img src="{{ asset('img/logo/logo-negative.png') }}" alt="Translate Champ"/>
-                <span><strong>TRANSLATE CHAMP</strong></span>
+                <img src="{{ asset('img/logo/logo-negative.png') }}" alt="{{ ucfirst(env('APP_NAME')) }}"/>
+                <span><strong>{{ strtoupper(env('APP_NAME')) }}</strong></span>
               </a>
             </div>
             <div class="checkout-menu">

@@ -22,7 +22,7 @@ class OrderRequirementRequest extends CustomFormRequest {
             'email' => 'required|string|email',
             'fromLang' => 'required|string',
             'toLang' => 'required|string',
-            'file' => 'required|mimes:docx,xls,xlsx,txt,pdf'
+            'file' => 'required|mimes:docx,xls,xlsx,txt,pdf|max:1000'
         ];
     }
 

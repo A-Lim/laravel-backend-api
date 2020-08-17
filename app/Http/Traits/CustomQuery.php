@@ -48,11 +48,14 @@ trait CustomQuery {
 
                 switch($filterType) {
                     case 'contains':
-                        $query->where($key, 'LIKE', '%'.$filterVal);
+                        $query->where($key, 'LIKE', '%'.$filterVal.'%');
                         break;
                     
                     case 'equals':
-                        $query->where($key, $filterVal);
+                        if (in_array($key, ['created_at', 'updated_at']))
+                            $query->whereDate($key, $filterVal);
+                        else
+                            $query->where($key, $filterVal);
                         break;
                     
                     default:

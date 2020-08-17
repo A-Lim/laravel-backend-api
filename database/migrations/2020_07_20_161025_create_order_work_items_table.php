@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOrderRequirementsTable extends Migration
+class CreateOrderWorkItemsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,14 @@ class CreateOrderRequirementsTable extends Migration
      */
     public function up()
     {
-        Schema::create('order_requirements', function (Blueprint $table) {
+        Schema::create('order_work_items', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('order_id')->unsigned();
-            $table->boolean('submitted')->default(false);
-            $table->string('name');
-            $table->string('email');
-            $table->text('description')->nullable();
-            $table->string('fromLang')->nullable();
-            $table->string('toLang')->nullable();
             $table->string('file')->nullable();
             $table->string('fileUrl')->nullable();
+            $table->text('externalFileUrl')->nullable();
+            $table->text('message')->nullable();
+            $table->timestamps();
 
             $table->foreign('order_id')
                   ->references('id')
@@ -37,7 +34,8 @@ class CreateOrderRequirementsTable extends Migration
      *
      * @return void
      */
-    public function down() {
-        Schema::dropIfExists('order_requirements');
+    public function down()
+    {
+        Schema::dropIfExists('order_work_items');
     }
 }

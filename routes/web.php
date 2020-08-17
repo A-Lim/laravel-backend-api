@@ -36,9 +36,6 @@ Route::namespace('Order')->group(function () {
 });
 
 Route::namespace('Payment')->group(function () {
-    // Route::get('payment/paypal/pay', function () {
-    //     dd("OK");
-    // });
     Route::get('payment/paypal/status', 'PaypalController@status');
     Route::post('payment/paypal/pay', 'PaypalController@charge');
 

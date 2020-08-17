@@ -139,8 +139,13 @@ class PaypalController extends Controller
                 $requirements_data['name'] = $result->payer->payer_info->first_name.' '.$result->payer->payer_info->last_name;
                 $requirements_data['email'] = $result->payer->payer_info->email;
                 
-                if ($result->getState() == 'approved')
-                    $this->orderRepository->update($order, ['status' => Order::STATUS_PAID]);
+                if ($result->getState() == 'approved') {
+                    $this->orderRepository->update($order, [
+                        'email' => $result->payer->payer_info->email,
+                        'status' => Order::STATUS_PAID
+                        ]
+                    );
+                }
                 
                 $this->orderRepository->update_order_requirements($order, $requirements_data);
                 $this->orderRepository->create_paypal_transaction($order, OrderTransaction::ACTION_PAY, $result->toArray());
@@ -157,6 +162,7 @@ class PaypalController extends Controller
                 $data['description'] = 'An error has occured. Please try again or contact our support if you already has been charged.';
                 $data['redirect'] = url('/order/pay/'.$order->refNo);
             }
+            
         } catch (PayPalConnectionException | Exception $exception) {
             // save exception data
             // record transaction error

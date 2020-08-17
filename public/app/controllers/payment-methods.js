@@ -211,6 +211,7 @@ function ($scope, $http, $window, $token, $refNo) {
         $window.location.href = redirectTo;
       })
       .catch(function(error) {
+        console.log(error);
         $scope.isLoading = false;
         showErrorAlert('Payment Failed', error?.data?.message);
         $scope.$apply();

@@ -7,6 +7,9 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
+use App\Events\OrderSuccess;
+use App\Listeners\SendOrderSuccessEmail;
+
 class EventServiceProvider extends ServiceProvider
 {
     /**
@@ -19,8 +22,8 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
 
-        OrderPaid::class => [
-            SendOrderInvoiceEmail::class,
+        OrderSuccess::class => [
+            SendOrderSuccessEmail::class,
         ], 
     ];
 
