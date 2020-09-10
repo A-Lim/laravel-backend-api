@@ -18,7 +18,7 @@ class CreateRequest extends CustomFormRequest {
         return [
             'name' => 'required|string',
             'code' => 'required|string|unique:usergroups,code,NULL,id,deleted_at,NULL',
-            'isAdmin' => 'required|boolean',
+            'is_admin' => 'required|boolean',
             'permissions' => 'exists:permissions,id',
         ];
     }

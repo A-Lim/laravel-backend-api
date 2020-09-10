@@ -12,9 +12,10 @@ class AnnouncementRepository implements AnnouncementRepositoryInterface {
     public function list($data, $paginate = false) {
         $query = Announcement::buildQuery($data);
 
-        if ($paginate)
-            return $query->paginate(10);
-
+        if ($paginate) {
+            $limit = isset($data['limit']) ? $data['limit'] : 10;
+            return $query->paginate($limit);
+        }
         return $query->get();
     }
 

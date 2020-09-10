@@ -14,13 +14,13 @@ class UserGroupsTableSeeder extends Seeder {
     public function run() {
         $now = Carbon::now()->toDateTimeString();
         $userGroups = [
-            ['code' => 'super_admin', 'name' => 'Super Admin', 'status' => 'active', 'isAdmin' => true, 'created_at' => $now, 'updated_at' => $now],
-            ['code' => 'normal', 'name' => 'Normal User', 'status' => 'active', 'isAdmin' => false, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'superadmin', 'name' => 'Super Admin', 'status' => 'active', 'is_admin' => true, 'created_at' => $now, 'updated_at' => $now],
+            ['code' => 'normal', 'name' => 'Normal User', 'status' => 'active', 'is_admin' => false, 'created_at' => $now, 'updated_at' => $now],
         ];
 
         UserGroup::insert($userGroups);
 
         $user = User::whereEmail('alexiuslim1994@gmail.com')->firstOrFail();
-        $user->assignUserGroup('super_admin');
+        $user->assignUserGroup('superadmin');
     }
 }

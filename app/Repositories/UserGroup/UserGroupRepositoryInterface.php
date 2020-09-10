@@ -5,6 +5,11 @@ use App\UserGroup;
 
 interface UserGroupRepositoryInterface
 {
+    /**
+     * Check if code exists
+     */
+    public function codeExists($code, $userGroupId = null);
+
      /**
      * List usergroup
      * 
@@ -12,7 +17,7 @@ interface UserGroupRepositoryInterface
      * @param boolean $paginate = false
      * @return [UserGroup]
      */
-    public function list($query);
+    public function list($query, $paginate = false);
 
     /**
      * Find usergroup from id

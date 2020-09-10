@@ -19,8 +19,10 @@ class ProductRepository implements IProductRepository {
     public function list($data, $paginate = false) {
         $query = Product::buildQuery($data);
 
-        if ($paginate)
-            return $query->paginate(10);
+        if ($paginate) {
+            $limit = isset($data['limit']) ? $data['limit'] : 10;
+            return $query->paginate($limit);
+        }
 
         return $query->get();
     }
@@ -29,6 +31,9 @@ class ProductRepository implements IProductRepository {
      * {@inheritdoc}
      */
     public function create($data) {
+        $data['highlighted'] = $data['highlighted'] ?? false;
+        $data['custom'] = $data['custom'] ?? false;
+
         return Product::create($data);
     }
 

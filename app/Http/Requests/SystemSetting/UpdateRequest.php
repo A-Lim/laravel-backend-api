@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Http\Requests\Auth;
+namespace App\Http\Requests\SystemSetting;
 
+use App\SystemSetting;
 use App\Http\Requests\CustomFormRequest;
 
-class LoginRequest extends CustomFormRequest {
+class UpdateRequest extends CustomFormRequest {
 
     public function __construct() {
         parent::__construct();
-        // set message
-        $this->setMessage('Invalid login credentials.');
     }
     
     public function authorize() {
@@ -18,8 +17,8 @@ class LoginRequest extends CustomFormRequest {
 
     public function rules() {
         return [
-            'email' => 'required|email',
-            'password' => 'required|string'
+          'verification_type' => 'required|in:'.implode(',', SystemSetting::VTYPES),
+          'allow_public_registration' => 'boolean'
         ];
     }
 }

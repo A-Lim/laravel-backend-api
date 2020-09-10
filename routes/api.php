@@ -1,7 +1,7 @@
 <?php
 // use Illuminate\Http\Request;
-
 Route::prefix('v1')->group(function () {
+
     /**** Auth ****/
     Route::namespace('API\v1\Auth')->group(function () {
         Route::post('login', 'LoginController@login');
@@ -29,9 +29,11 @@ Route::prefix('v1')->group(function () {
 
     /**** UserGroup ****/
     Route::namespace('API\v1\UserGroup')->group(function () {
+        
         Route::get('usergroups', 'UserGroupController@list');
         Route::get('usergroups/{userGroup}', 'UserGroupController@details');
         Route::post('usergroups', 'UserGroupController@create');
+        Route::post('usergroups/exists', 'UserGroupController@exists');
         Route::patch('usergroups/{userGroup}', 'UserGroupController@update');
         Route::delete('usergroups/{userGroup}', 'UserGroupController@delete');
     });
@@ -39,6 +41,7 @@ Route::prefix('v1')->group(function () {
     /**** SystemSettings ****/
     Route::namespace('API\v1\SystemSetting')->group(function () {
         Route::get('systemsettings', 'SystemSettingController@list');
+        Route::get('systemsettings/allowpublicregistration', 'SystemSettingController@allowPublicRegistration');
         Route::patch('systemsettings', 'SystemSettingController@update');
     });
 
@@ -49,6 +52,11 @@ Route::prefix('v1')->group(function () {
         Route::post('announcements', 'AnnouncementController@create');
         Route::patch('announcements/{announcement}', 'AnnouncementController@update');
         Route::delete('announcements/{announcement}', 'AnnouncementController@delete');
+    });
+
+    /**** Permissions ****/
+    Route::namespace('API\v1\Permission')->group(function () {
+        Route::get('permissions', 'PermissionController@list');
     });
 
     /**** Products ****/

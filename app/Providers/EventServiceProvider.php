@@ -9,6 +9,7 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 
 use App\Events\OrderSuccess;
 use App\Listeners\SendOrderSuccessEmail;
+use App\Listeners\SendEmailVerificationEmail;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -19,7 +20,7 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         Registered::class => [
-            SendEmailVerificationNotification::class,
+            SendEmailVerificationEmail::class,
         ],
 
         OrderSuccess::class => [

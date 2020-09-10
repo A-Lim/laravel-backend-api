@@ -18,7 +18,7 @@ class UserGroupResource extends JsonResource
             'name' => $this->name,
             'code' => $this->code,
             'status' => $this->status,
-            'isAdmin' => $this->isAdmin
+            'is_admin' => $this->is_admin
         ];
     }
 }

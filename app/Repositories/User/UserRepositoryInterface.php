@@ -8,13 +8,13 @@ interface UserRepositoryInterface
 {
 
     /**
-     * List users for datatable
+     * List users users
      * 
      * @param array $query
      * @param boolean $paginate = false
      * @return [User] / LengthAwarePaginator
      */
-    public function datatableList(array $query, $paginate = false);
+    public function list(array $query, $paginate = false);
 
     /**
      * Find user from id

@@ -10,12 +10,12 @@ class UserGroup extends Model {
     use SoftDeletes, CustomQuery;
 
     protected $table = 'usergroups';
-    protected $fillable = ['name', 'code', 'status', 'isAdmin', 'deleted_at', 'created_by', 'updated_by'];
+    protected $fillable = ['name', 'code', 'status', 'is_admin', 'deleted_at', 'created_by', 'updated_by'];
     protected $hidden = ['deleted_at', 'pivot', 'created_at', 'updated_at'];
-    protected $casts = ['isAdmin' => 'boolean'];
+    protected $casts = ['is_admin' => 'boolean'];
 
     // list of properties queryable for datatable
-    public static $queryable = ['name', 'code', 'status', 'isAdmin', 'deleted_at', 'created_by', 'updated_by'];
+    public static $queryable = ['name', 'code', 'status', 'is_admin', 'deleted_at', 'created_by', 'updated_by'];
 
     const STATUS_ACTIVE = 'active';
     const STATUS_INACTIVE = 'inactive';
@@ -43,7 +43,7 @@ class UserGroup extends Model {
     }
 
     public function users() {
-        return $this->belongsToMany(User::class, 'user_usergroup', 'user_id', 'usergroup_id'); 
+        return $this->belongsToMany(User::class, 'user_usergroup', 'usergroup_id', 'user_id'); 
     }
 
     public function permissions() {

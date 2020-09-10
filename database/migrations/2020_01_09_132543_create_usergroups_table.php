@@ -18,7 +18,7 @@ class CreateUsergroupsTable extends Migration
             $table->string('name', 100);
             $table->string('code', 100)->unique();
             $table->string('status', 20);
-            $table->boolean('isAdmin')->default(false);
+            $table->boolean('is_admin')->default(false);
             $table->softDeletes();
             $table->bigInteger('created_by')->unsigned()->nullable();
             $table->bigInteger('updated_by')->unsigned()->nullable();

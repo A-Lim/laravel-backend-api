@@ -13,18 +13,22 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RefreshTokenRequest;
 
 use App\Repositories\Auth\OAuthRepositoryInterface;
+use App\Repositories\User\UserRepositoryInterface;
 
 class LoginController extends ApiController {
 
     use AuthenticatesUsers, ThrottlesLogins, GeneratesToken;
 
     private $oAuthRepository;
+    private $userRepository;
 
-    public function __construct(OAuthRepositoryInterface $oAuthRepositoryInterface) {
+    public function __construct(OAuthRepositoryInterface $oAuthRepositoryInterface,
+        UserRepositoryInterface $iUserRepository) {
         $this->middleware('guest')->except('logout');
         $this->middleware('auth:api')->except(['login', 'refresh']);
 
         $this->oAuthRepository = $oAuthRepositoryInterface;
+        $this->userRepository = $iUserRepository;
     }
 
     public function login(LoginRequest $request) {
@@ -60,8 +64,9 @@ class LoginController extends ApiController {
 
             // generate token from using email and password
             $token = $this->generateToken($data);
-
-            return $this->responseWithTokenAndUser(200, $token, auth()->user());
+            $permissions = $this->userRepository->permissions($user);
+            
+            return $this->responseWithLoginData(200, $token, $user, $permissions);
         }
 
         // if unsuccessful, increase login attempt count

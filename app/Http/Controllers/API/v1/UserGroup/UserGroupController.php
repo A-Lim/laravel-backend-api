@@ -10,6 +10,7 @@ use App\Repositories\UserGroup\UserGroupRepositoryInterface;
 
 use App\Http\Requests\UserGroup\CreateRequest;
 use App\Http\Requests\UserGroup\UpdateRequest;
+use App\Http\Requests\UserGroup\CodeExistsRequest;
 
 class UserGroupController extends ApiController {
 
@@ -19,9 +20,16 @@ class UserGroupController extends ApiController {
         $this->middleware('auth:api');
         $this->userGroupRepository = $userGroupRepositoryInterface;
     }
+
+    public function exists(CodeExistsRequest $request) {
+        $exists = $this->userGroupRepository->codeExists($request->code, $request->userGroupId);
+        return $this->responseWithData(200, $exists);
+    }
     
     public function list(Request $request) {
-        $this->authorize('viewAny', UserGroup::class);
+        if ($request->type != 'formcontrol')
+            $this->authorize('viewAny', UserGroup::class);
+        
         $userGroups = $this->userGroupRepository->list($request->all(), true);
         return $this->responseWithData(200, $userGroups);
     }
@@ -34,6 +42,7 @@ class UserGroupController extends ApiController {
 
     public function details(UserGroup $userGroup) {
         $this->authorize('view', $userGroup);
+        $userGroup = $this->userGroupRepository->find($userGroup->id);
         return $this->responseWithData(200, $userGroup); 
     }
 

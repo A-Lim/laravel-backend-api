@@ -9,9 +9,12 @@ use App\Http\Controllers\ApiController;
 use App\Http\Traits\GeneratesToken;
 use App\Http\Requests\Auth\RegistrationRequest;
 
-
+use Carbon\Carbon;
+use App\User;
+use App\SystemSetting;
 use App\Repositories\User\UserRepositoryInterface;
 use App\Repositories\Auth\OAuthRepositoryInterface;
+use App\Repositories\SystemSetting\SystemSettingRepositoryInterface;
 
 use Illuminate\Http\Request;
 class RegistrationController extends ApiController {
@@ -20,39 +23,49 @@ class RegistrationController extends ApiController {
 
     private $userRepository;
     private $oAuthRepository;
+    private $systemSettingRepository;
 
     public function __construct(UserRepositoryInterface $userRepositoryInterface,
-        OAuthRepositoryInterface $oAuthRepositoryInterface) {
+        OAuthRepositoryInterface $oAuthRepositoryInterface,
+        SystemSettingRepositoryInterface $iSystemSettingRepository) {
         $this->middleware('guest');
 
         $this->userRepository = $userRepositoryInterface;
         $this->oAuthRepository = $oAuthRepositoryInterface;
+        $this->systemSettingRepository = $iSystemSettingRepository;
     }
 
     public function register(RegistrationRequest $request) {
-        $client = $this->getPGCClient();
+        $registration_data = $request->all();
+        $registration_message = 'Registration successful.';
 
-        $user = $this->userRepository->create($request->all());
-        event(new Registered($user));
+        // check is registration is open
+        $public_registration = $this->systemSettingRepository->findByCode('allow_public_registration');
+        if (!(bool) $public_registration->value)
+            return $this->responseWithMessage(403, 'Registration is closed.');
 
-        // $data = [
-        //     'grant_type' => config('constants.oAuth.grant_type_password'),
-        //     'client_id' => $client->id,
-        //     'client_secret' => $client->secret,
-        //     'username' => $request->email,
-        //     'password' => $request->password,
-        //     'scope' => ''
-        // ];
+        // verification type
+        $verification_type = $this->systemSettingRepository->findByCode('verification_type');
+        // no verification
+        if ($verification_type->value == SystemSetting::VTYPE_NONE) {
+            $registration_data['status'] = User::STATUS_ACTIVE;
+            $registration_data['email_verified_at'] = Carbon::now();
+        }
+
+        $user = $this->userRepository->create($registration_data);
+
+        // send email verification email
+        if ($verification_type->value == SystemSetting::VTYPE_EMAIL) {
+            $registration_message += ' An will be sent to verify your account.';
+            event(new Registered($user));
+        }
         
-        // // generate token from using email and password
-        // $token = $this->generateToken($data);
+        // assign default usergroup
+        $default_usergroup = $this->systemSettingRepository->findByCode('default_usergroups');
+        if (!empty($default_usergroup->value))
+            $user->assignUserGroupsByIds($default_usergroup->value);
 
-        // // TODO:: add redirect if wants to frontend to login into app
-        // // TODO:: add login 
-        $user->sendEmailVerificationNotification();
-
-        // return $this->responseWithTokenAndUser(200, $token, $user);
-        return $this->responseWithMessage(200, 'Successfully registered. An email will be sent to verify your account.');
+        return $this->responseWithMessage(200, $registration_message);
     }
 
     // get PGC - Password Grant Client from DB

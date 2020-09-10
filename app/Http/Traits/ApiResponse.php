@@ -52,13 +52,14 @@ trait ApiResponse {
             ->json(['data' => $data], $statusCode, $this->headers);
     }
 
-    public function responseWithTokenAndUser($statusCode, $token, $user) {
+    public function responseWithLoginData($statusCode, $token, $user, $permissions) {
         $data = [
             'tokenType' => $token->token_type,
             'expiresIn' => $token->expires_in,
             'accessToken' => $token->access_token,
             'refreshToken' => $token->refresh_token,
-            'user' => $user
+            'user' => $user,
+            'permissions' => $permissions
         ];
         return response()
             ->json(['data' => $data], $statusCode, $this->headers);

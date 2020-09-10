@@ -59,8 +59,10 @@ class OrderRepository implements IOrderRepository {
     public function list($data, $paginate = false) {
         $query = Order::buildQuery($data)->orderBy('id', 'DESC');
 
-        if ($paginate)
-            return $query->paginate(10);
+        if ($paginate) {
+            $limit = isset($data['limit']) ? $data['limit'] : 10;
+            return $query->paginate($limit);
+        }
 
         return $query->get();
     }

@@ -1,27 +1,47 @@
 <?php
 namespace App\Repositories\UserGroup;
 
+use DB;
 use App\UserGroup;
+use Carbon\Carbon;
 
 class UserGroupRepository implements UserGroupRepositoryInterface {
+    /**
+     * {@inheritdoc}
+     */
+    public function codeExists($code, $userGroupId = null) {
+        $conditions = [['code', '=', $code]];
+        if ($userGroupId != null)
+            array_push($conditions, ['id', '<>', $userGroupId]);
+
+        return UserGroup::where($conditions)->exists();
+    }
 
      /**
      * {@inheritdoc}
      */
-    public function list($data) {
-        $query = UserGroup::buildQuery($data);
+    public function list($data, $paginate = false) {
+        $query = UserGroup::buildQuery($data)
+            ->withCount('users');
 
-        if (isset($data['all']) && $data['all'] == true)
-            return $query->get();
-        else
-            return $query->paginate(10);
+        if (isset($data['id']) && is_array($data['id'])) {
+            $ids = implode(',', $data['id']);
+            $query->orderByRaw(DB::raw("FIELD(id,".$ids.") DESC"));
+        }
+
+        if ($paginate) {
+            $limit = isset($data['limit']) ? $data['limit'] : 10;
+            return $query->paginate($limit);
+        }
+
+        return $query->get();
     }
     
     /**
      * {@inheritdoc}
      */
     public function find($id) {
-        return UserGroup::find($id);
+        return UserGroup::with(['users', 'permissions'])->find($id);
     }
 
     /**
@@ -37,9 +57,11 @@ class UserGroupRepository implements UserGroupRepositoryInterface {
 
         // if isAdmin, dont save permissions, cause it's gonna be full access
         // save permissions if not admin
-        if ($data['isAdmin'] == false && !empty($data['permissions'])) 
+        if ($data['is_admin'] == false && !empty($data['permissions'])) 
             $userGroup->givePermissions($data['permissions']);
         
+        if (!empty($data['userIds']))
+            $userGroup->users()->sync($data['userIds']);
         
         return UserGroup::with('permissions')->where('id', $userGroup->id)->first();
     }
@@ -52,6 +74,14 @@ class UserGroupRepository implements UserGroupRepositoryInterface {
 
         if (!empty($data['code']))
             unset($data['code']);
+
+        // if isAdmin, dont save permissions, cause it's gonna be full access
+        // save permissions if not admin
+        if ($data['is_admin'] == false && !empty($data['permissions'])) 
+            $userGroup->givePermissions($data['permissions']);
+
+        if (!empty($data['userIds']))
+            $userGroup->users()->sync($data['userIds']);
 
         $userGroup->fill($data);
         $userGroup->save();
@@ -69,22 +99,6 @@ class UserGroupRepository implements UserGroupRepositoryInterface {
             $data['deleted_at'] = Carbon::now()->format('Y-m-d H:i:s');
             $userGroup->fill($data);
             $userGroup->save();
-        }
-    }
-
-    /**
-     * Build query based on allowed keys
-     * 
-     * @param Builder &$query
-     * @param array $data
-     */
-    private function buildQuery(&$query, array $data) {
-        $allowed = ['name', 'code', 'status', 'isAdmin'];
-
-        foreach ($data as $key => $value) {
-            if (in_array($key, $allowed)) {
-                $query->where($key, 'LIKE', '%'.$value.'%');
-            }
         }
     }
 }

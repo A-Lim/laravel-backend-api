@@ -80,17 +80,7 @@ trait CustomQuery {
                 $query->orderBy($sortCol, $sortType);
             }
         }
-
-        // if (array_key_exists('skip', $data)) {
-        //     $query->
-        // }
-
-        // if (array_key_exists('limit', $data))
-        //     $query->limit()
-        // else
-        //     $query->limit(10);
-
-        // dd($query->toSql());
+        
         return $query;
     }
 }

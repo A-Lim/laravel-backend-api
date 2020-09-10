@@ -50,8 +50,11 @@ class SystemSettingRepository implements SystemSettingRepositoryInterface {
 
             foreach ($data as $code => $value) {
                 $cases[] = "WHEN `code` = '{$code}' then ?";
-                $params[] = $value;
                 $codes[] = $code;
+                if ($code === 'default_usergroups')
+                    $params[] = json_encode($value);
+                else
+                    $params[] = $value;
             }
 
             $codes = "'".implode('\',\'', $codes)."'";

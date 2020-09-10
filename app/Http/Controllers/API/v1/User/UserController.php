@@ -25,8 +25,10 @@ class UserController extends ApiController {
     }
     
     public function list(Request $request) {
-        $this->authorize('viewAny', User::class);
-        $users = $this->userRepository->datatableList($request->all(), true);
+        if ($request->type != 'formcontrol')
+            $this->authorize('viewAny', User::class);
+            
+        $users = $this->userRepository->list($request->all(), true);
         return $this->responseWithData(200, $users);
     }
 
@@ -45,7 +47,8 @@ class UserController extends ApiController {
         // user attempting to change password
         if ($request->has('oldPassword')) {
             $credentials = ['email' => $authUser->email, 'password' => $request->oldPassword];
-            if (!Auth::check($credentials)) {
+            
+            if (!Auth::guard('web')->attempt($credentials)) {
                 return $this->responseWithMessage(401, 'Invalid old password.');
             }
             $data['password'] = $request->newPassword;
@@ -57,11 +60,13 @@ class UserController extends ApiController {
     }
 
     public function uploadProfileAvatar(UploadAvatarRequest $request) {
+        $this->authorize('updateProfile', $authUser);
         $imagePaths = $this->userRepository->saveAvatar(auth()->user(), $request->file('avatar'));
         return $this->responseWithMessageAndData(200, $imagePaths, 'Profile avatar updated.');
     }
 
     public function uploadUserAvatar(UploadAvatarRequest $request, User $user) {
+        $this->authorize('update', $user);
         $imagePaths = $this->userRepository->saveAvatar($user, $request->file('avatar'));
         return $this->responseWithMessageAndData(200, $imagePaths, 'User avatar updated.');
     }
