@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Payment;
 
-use Exception;
+use Throwable;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Repositories\Order\IOrderRepository;
@@ -85,7 +85,7 @@ class PaypalController extends Controller
 
         try {
             $payment->create($context);
-        } catch (PayPalConnectionException | Exception $exception) {
+        } catch (PayPalConnectionException | Throwable $exception) {
             // record transaction error
             $this->orderRepository
                 ->create_error_transaction(
@@ -163,7 +163,7 @@ class PaypalController extends Controller
                 $data['redirect'] = url('/order/pay/'.$order->refNo);
             }
             
-        } catch (PayPalConnectionException | Exception $exception) {
+        } catch (PayPalConnectionException | Throwable $exception) {
             // save exception data
             // record transaction error
             $this->orderRepository
