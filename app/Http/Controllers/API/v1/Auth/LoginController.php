@@ -4,10 +4,11 @@ namespace App\Http\Controllers\API\v1\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Laravel\Passport\Passport;
 
 use App\Http\Controllers\ApiController;
-use App\Http\Traits\GeneratesToken;
 
+use Carbon\Carbon;
 use App\User;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RefreshTokenRequest;
@@ -17,7 +18,7 @@ use App\Repositories\User\UserRepositoryInterface;
 
 class LoginController extends ApiController {
 
-    use AuthenticatesUsers, ThrottlesLogins, GeneratesToken;
+    use AuthenticatesUsers, ThrottlesLogins;
 
     private $oAuthRepository;
     private $userRepository;
@@ -52,21 +53,18 @@ class LoginController extends ApiController {
                     break;
             }
 
-            $client = $this->getPGCClient();
-            $data = [
-                'grant_type' => config('constants.oAuth.grant_type_password'),
-                'client_id' => $client->id,
-                'client_secret' => $client->secret,
-                'username' => $request->email,
-                'password' => $request->password,
-                'scope' => ''
-            ];
+            $tokenResult = $user->createToken('accesstoken');
+            $rememberMe = $request->has('rememberMe') ? $request->rememberMe : false;
+            if ($rememberMe) {
+                $token = $tokenResult->token;
+                $createdAt = new Carbon($token->created_at);
+                $token->expires_at = $createdAt->addSeconds(env('PASSPORT_TOKEN_REMEMBER_ME_EXIPIRATION'));
+                $token->save();
+            }
 
-            // generate token from using email and password
-            $token = $this->generateToken($data);
             $permissions = $this->userRepository->permissions($user);
             
-            return $this->responseWithLoginData(200, $token, $user, $permissions);
+            return $this->responseWithLoginData(200, $tokenResult, $user, $permissions);
         }
 
         // if unsuccessful, increase login attempt count
@@ -81,21 +79,21 @@ class LoginController extends ApiController {
     * refresh_token is used to request a new access_token
     * expiry of refresh_token that is returned will reset
     */
-    public function refresh(RefreshTokenRequest $request) {
-        $client = $this->getPGCClient();
+    // public function refresh(RefreshTokenRequest $request) {
+    //     $client = $this->getPGCClient();
 
-        $data = [
-            'grant_type' => config('constants.oAuth.grant_type_refresh_token'),
-            'refresh_token' => $request->refreshToken,
-            'client_id' => $client->id,
-            'client_secret' => $client->secret,
-            'scope' => '',
-        ];
+    //     $data = [
+    //         'grant_type' => config('constants.oAuth.grant_type_refresh_token'),
+    //         'refresh_token' => $request->refreshToken,
+    //         'client_id' => $client->id,
+    //         'client_secret' => $client->secret,
+    //         'scope' => '',
+    //     ];
 
-        $token = $this->generateToken($data);
+    //     $token = $this->generateToken($data);
         
-        return $this->responseWithToken(200, $token);
-    }
+    //     return $this->responseWithToken(200, $token);
+    // }
 
     public function logout(Request $request) {
         $accessToken = auth()->user()->token();
@@ -105,14 +103,5 @@ class LoginController extends ApiController {
         $accessToken->revoke();
 
         return $this->responseWithMessage(201, "Successfully logged out.");
-    }
-
-    // get PGC - Password Grant Client from DB
-    protected function getPGCClient() {
-        $client = $this->oAuthRepository->findClient(2);
-        if ($client == null) 
-            throw new \Exception('PGC not found.');
-
-        return $client;
     }
 }

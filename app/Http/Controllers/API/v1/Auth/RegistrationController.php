@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Auth\Events\Registered;
 
 use App\Http\Controllers\ApiController;
-use App\Http\Traits\GeneratesToken;
 use App\Http\Requests\Auth\RegistrationRequest;
 
 use Carbon\Carbon;
@@ -18,8 +17,6 @@ use App\Repositories\SystemSetting\SystemSettingRepositoryInterface;
 
 use Illuminate\Http\Request;
 class RegistrationController extends ApiController {
-
-    use GeneratesToken;
 
     private $userRepository;
     private $oAuthRepository;
@@ -66,14 +63,5 @@ class RegistrationController extends ApiController {
             $user->assignUserGroupsByIds($default_usergroup->value);
 
         return $this->responseWithMessage(200, $registration_message);
-    }
-
-    // get PGC - Password Grant Client from DB
-    protected function getPGCClient() {
-        $client = $this->oAuthRepository->findClient(2);
-        if ($client == null) 
-            throw new \Exception('PGC not found.');
-
-        return $client;
     }
 }

@@ -19,7 +19,8 @@ class LoginRequest extends CustomFormRequest {
     public function rules() {
         return [
             'email' => 'required|email',
-            'password' => 'required|string'
+            'password' => 'required|string',
+            'rememberMe' => 'nullable|boolean'
         ];
     }
 }

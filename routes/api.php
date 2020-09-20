@@ -6,7 +6,7 @@ Route::prefix('v1')->group(function () {
     Route::namespace('API\v1\Auth')->group(function () {
         Route::post('login', 'LoginController@login');
         Route::post('logout', 'LoginController@logout');
-        Route::post('token/refresh', 'LoginController@refresh');
+        // Route::post('token/refresh', 'LoginController@refresh');
         Route::post('register', 'RegistrationController@register');
         Route::post('forgot-password', 'ForgotPasswordController@sendResetLink');
         Route::post('reset-password', 'ForgotPasswordController@resetPassword');
