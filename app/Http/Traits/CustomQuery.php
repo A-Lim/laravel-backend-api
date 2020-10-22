@@ -7,19 +7,17 @@ trait CustomQuery {
         // returns default query
         $class = static::class;
         $query = $class::query();
-        // if ($this->queryable != null && count($this->queryable) > 0) {
-            switch (env('DATATABLE_TYPE', 'DATATABLE')) {
-                case 'DATATABLE':
-                    break;
+        switch (env('DATATABLE_TYPE', 'DATATABLE')) {
+            case 'DATATABLE':
+                break;
 
-                case 'AGGRID':
-                    $query = self::fromAgGrid($data);
-                    break;
-                
-                default:
-                    break;
-            }
-        // }
+            case 'AGGRID':
+                $query = self::fromAgGrid($data);
+                break;
+            
+            default:
+                break;
+        }
 
         return $query;
     }
@@ -30,11 +28,6 @@ trait CustomQuery {
         // get queryable from model
         $queryable = $class::$queryable;
 
-        // $skip = array_key_exists('skip', $data) ? $data['skip'] : null;
-        // $limit = array_key_exists('limit', $data) ? $data['limit'] : null;
-        // $sorts = [];
-        // $filters = [];
-
         foreach ($data as $key => $value) {
             if (in_array($key, $queryable)) {
                 $filterData = explode(':', $value);
@@ -42,7 +35,7 @@ trait CustomQuery {
                 if (count($filterData) < 2) {
                     // throw exception
                 }
-                // dd($filterData);
+
                 $filterType = strtolower($filterData[0]);
                 $filterVal = $filterData[1];
 
@@ -72,7 +65,6 @@ trait CustomQuery {
                 
                 if (count($sortData) < 2) {
                     // throw exception
-                    dd("THRIW");
                 }
                 $sortCol = $sortData[1];
                 $sortType = $sortData[0];

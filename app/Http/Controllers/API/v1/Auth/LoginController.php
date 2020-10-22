@@ -54,14 +54,6 @@ class LoginController extends ApiController {
             }
 
             $tokenResult = $user->createToken('accesstoken');
-            $rememberMe = $request->has('rememberMe') ? $request->rememberMe : false;
-            if ($rememberMe) {
-                $token = $tokenResult->token;
-                $createdAt = new Carbon($token->created_at);
-                $token->expires_at = $createdAt->addSeconds(env('PASSPORT_TOKEN_REMEMBER_ME_EXIPIRATION'));
-                $token->save();
-            }
-
             $permissions = $this->userRepository->permissions($user);
             
             return $this->responseWithLoginData(200, $tokenResult, $user, $permissions);
@@ -73,27 +65,6 @@ class LoginController extends ApiController {
 
         return $this->responseWithMessage(401, 'Invalid login credentials.');
     }
-
-    /*
-    * When access_token has expired
-    * refresh_token is used to request a new access_token
-    * expiry of refresh_token that is returned will reset
-    */
-    // public function refresh(RefreshTokenRequest $request) {
-    //     $client = $this->getPGCClient();
-
-    //     $data = [
-    //         'grant_type' => config('constants.oAuth.grant_type_refresh_token'),
-    //         'refresh_token' => $request->refreshToken,
-    //         'client_id' => $client->id,
-    //         'client_secret' => $client->secret,
-    //         'scope' => '',
-    //     ];
-
-    //     $token = $this->generateToken($data);
-        
-    //     return $this->responseWithToken(200, $token);
-    // }
 
     public function logout(Request $request) {
         $accessToken = auth()->user()->token();

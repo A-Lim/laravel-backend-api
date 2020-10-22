@@ -22,6 +22,7 @@ class AuthServiceProvider extends ServiceProvider
         'App\UserGroup' => 'App\Policies\UserGroupPolicy',
         'App\Announcement' => 'App\Policies\AnnouncementPolicy',
         'App\SystemSetting' => 'App\Policies\SystemSettingPolicy',
+        'App\Workflow' => 'App\Policies\WorkflowPolicy',
     ];
 
     /**

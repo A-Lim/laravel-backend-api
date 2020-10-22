@@ -3,186 +3,189 @@ namespace App\Repositories\Order;
 
 use DB;
 use App\Order;
-use App\OrderRequirement;
-use App\OrderTransaction;
-use App\Product;
-use App\OrderItem;
-use App\OrderWorkItem;
+use App\OrderLog;
+use App\Workflow;
+use App\Process;
+use App\OrderFile;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 use Carbon\Carbon;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Storage;
 
 class OrderRepository implements IOrderRepository {
+    const STATUS_INPROGRESS = 'in progress';
+    const STATUS_COMPLETED = 'completed';
 
     /**
      * {@inheritdoc}
      */
-    public function find($id, $details = false, $requirement = false, $transactions = false, $workitems = false) {
-        $query = Order::where('id', $id);
-        
-        if ($details)
-            $query->with('items');
+    public function iwoExists(Workflow $workflow, $iwo, $orderId = null) {
+        $tableName = '_workflow_'.$workflow->id;
+        $conditions = [['iwo', '=', $iwo]];
+        if ($orderId != null)
+            array_push($conditions, ['id', '<>', $orderId]);
 
-        if ($requirement)
-            $query->with('requirement');
-        
-        if ($transactions)
-            $query->with('transactions');
-
-        if ($workitems)
-            $query->with('workitems');
-        
-        return $query->firstOrFail();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findByRefNo($refNo, $details = false, $requirement = false, $transactions = false) {
-        $query = Order::where('refNo', $refNo);
-        
-        if ($details)
-            $query->with('items');
-
-        if ($requirement)
-            $query->with('requirement');
-
-        if ($transactions)
-            $query->with('transactions');
-        
-        return $query->firstOrFail();
+        return Order::fromTable($tableName)
+            ->where($conditions)->exists();
     }
 
      /**
      * {@inheritdoc}
      */
-    public function list($data, $paginate = false) {
-        $query = Order::buildQuery($data)->orderBy('id', 'DESC');
+    public function list(Workflow $workflow, $query, $withFiles = false, $paginate = false) {
+        $tableName = '_workflow_'.$workflow->id;
+        $query = Order::fromTable($tableName)
+            ->agGridQuery($query);
 
         if ($paginate) {
             $limit = isset($data['limit']) ? $data['limit'] : 10;
-            return $query->paginate($limit);
+            $paginated = $query->paginate($limit);
+            return $this->withFiles($workflow, $paginated);
         }
 
-        return $query->get();
+        $orders = $query->get();
+        return $this->withFiles($workflow, $orders);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function create($cart, $currency) {
-        $total = 0;
+    public function find(Workflow $workflow, $order_id) {
+        $tableName = '_workflow_'.$workflow->id;
+        $order = Order::fromTable($tableName)
+            ->where('id', $order_id)
+            ->first();
 
-        // calculate total
-        foreach ($cart as $cartItem) {
-            $total += $cartItem['product']->price * $cartItem['quantity'];
-        }
+        $files = OrderFile::where('workflow_id', $workflow->id)
+            ->where('order_id', $order_id)
+            ->get();
 
-        DB::beginTransaction();
-        $order = Order::create([
-            'currency' => $currency,
-            'status' => Order::STATUS_PENDING,
-            'password' => Str::random(10),
-            'refNo' => md5(time()),
-            'total' => $total
-        ]);
+        $orderLogs = OrderLog::with(['process', 'user'])
+            ->where('workflow_id', $workflow->id)
+            ->where('order_id', $order_id)
+            ->orderBy('created_at', 'DESC')
+            ->get();
 
-        $orderItems = [];
-
-        foreach ($cart as $cartItem) {
-            $orderItem = [
-                'order_id' => $order->id,
-                'product_id' => $cartItem['product']->id,
-                'name' => $cartItem['product']->name,
-                'description' => $cartItem['product']->description,
-                'delivery_days' => $cartItem['product']->delivery_days,
-                'quantity' => $cartItem['quantity'],
-                'unit_price' => $cartItem['product']->price,
-            ];
-            array_push($orderItems, $orderItem);
-        }
-
-        OrderItem::insert($orderItems);
-        DB::commit();
-
-        return Order::with('items')->where('id', $order->id)->firstOrFail();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function update(Order $order, $data) {
-        $order->fill($data);
-        $order->save();
+        $order->setAttribute('files', $files);
+        $order->setAttribute('orderLogs', $orderLogs);
         return $order;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function statistics($date) {
-        $orders_today = Order::whereDate('created_at', $date)->get();
-        $data['orders_today_count'] = count($orders_today);
-        $data['orders_today_total'] = $orders_today->sum('total');
+    public function create(Workflow $workflow, $data, $files = null) {
+        $tableName = '_workflow_'.$workflow->id;
 
-        return $data;
+        $insert_data = [
+            'iwo' => $data['iwo'],
+            'customer' => $data['customer'],
+            'delivery_date' => $data['delivery_date'],
+            'remark' => $data['remark'] ?? null,
+            'status' => self::STATUS_INPROGRESS
+        ];
+
+        foreach ($data['processes'] as $process) {
+            $insert_data[$process->code] = $process['default'];
+        }
+
+        $insert_data['created_by'] = auth()->id();
+        $insert_data['created_at'] = Carbon::now();
+
+        DB::beginTransaction();
+        // insert order
+        $order = Order::fromTable($tableName)->create($insert_data);
+        // save file to disk
+        $filesData = $this->saveFiles($workflow->id, $order->id, $files);
+        // save file data to db
+        $order->files()->createMany($filesData);
+        DB::commit();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function count_by_status(array $statuses) {
-        return DB::table('orders')->select('status', DB::raw('count(*) as total'))
-            ->whereIn('status', $statuses)
-            ->groupBy('status')
+    public function delete(Workflow $workflow, $order_id) {
+        $tableName = '_workflow_'.$workflow->id;
+        Order::fromTable($tableName)
+            ->where('id', $order_id)
+            ->delete();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function updateProcess(Workflow $workflow, $order_id, $data) {
+        DB::beginTransaction();
+
+        $tableName = '_workflow_'.$workflow->id;
+        $process = Process::find($data['process_id']);
+        $process_column = $process->code;
+        $order = Order::fromTable($tableName)->where('id', $order_id)->first();
+        $from_status = $order->$process_column;
+        $order->update([$process_column => $data['status']]);
+
+        OrderLog::create([
+            'workflow_id' => $workflow->id,
+            'order_id' => $order_id,
+            'process_id' => $process->id,
+            'from_status' => $from_status,
+            'to_status' => $data['status'],
+            'created_by' => auth()->id(),
+            'created_at' => Carbon::now()
+        ]);
+
+        DB::commit();
+    }
+
+    private function saveFiles($workflow_id, $order_id, $files) {
+        if ($files == null || !isset($files['uploadFiles'])) 
+            return [];
+
+        $filesData = [];
+        
+        $saveDirectory = 'public/iwo/'.$workflow_id.'/'.$order_id.'/';
+        foreach ($files['uploadFiles'] as $file) {
+            $fileName = $file->getClientOriginalName();
+            Storage::putFileAs($saveDirectory, $file, $fileName);
+            $fileData = [
+                'workflow_id' => $workflow_id,
+                'name' => $fileName,
+                'path' => Storage::url($saveDirectory.$fileName),
+                'type' => $file->getClientOriginalExtension(),
+                'uploaded_by' => auth()->id(),
+                'uploaded_at' => Carbon::now()
+            ];
+            array_push($filesData, $fileData);
+        }
+
+        return $filesData;
+    }
+
+    private function withFiles(Workflow $workflow, $orderData) {
+        $orders = $orderData;
+        if ($orderData instanceof LengthAwarePaginator) {
+            $orders = collect($orderData->items());
+        }
+        
+        $order_ids = $orders->pluck('id')->toArray();
+        $orderFiles = OrderFile::where('workflow_id', $workflow->id)
+            ->whereIn('order_id', $order_ids)
             ->get();
+
+        foreach ($orders as $order) {
+            $order_files = $orderFiles->filter(function($file) use ($order) {
+                return $file->order_id == $order->id;
+            })->values()->toArray();
+            $order->setAttribute('files', $order_files);
+        }
+
+        if ($orderData instanceof LengthAwarePaginator) {
+            $orderData->files = $orders->toArray();
+            return $orderData;
+        }
+
+        return $orders;
     }
-
-    public function create_work_item(Order $order, $data) {
-        $data['order_id'] = $order->id;
-        return OrderWorkItem::create($data);
-    }
-
-    public function update_order_requirements(Order $order, $data) {
-        $requirement = $order->requirement;
-        $data['order_id'] = $order->id;
-        $data['submitted'] = true;
-
-        if ($requirement != null)
-            $requirement->update($data);
-        else
-            OrderRequirement::create($data);
-
-        return $requirement;
-    }   
-
-    public function create_stripe_transaction(Order $order, $action, $payment_data) {
-        $data['order_id'] = $order->id;
-        $data['payment_transaction_id'] = $payment_data['id'];
-        $data['action'] = $action;
-        $data['payment_platform'] = OrderTransaction::PLATFORM_STRIPE;
-        $data['status'] = $payment_data['status'];
-        $data['details'] = json_encode($payment_data);
-        return OrderTransaction::create($data);
-    }
-
-    public function create_paypal_transaction(Order $order, $action, $payment_data) {
-        $data['order_id'] = $order->id;
-        $data['payment_transaction_id'] = $payment_data['id'];
-        $data['action'] = $action;
-        $data['payment_platform'] = OrderTransaction::PLATFORM_PAYPAL;
-        $data['status'] = $payment_data['state'];
-        $data['details'] = json_encode($payment_data);
-        return OrderTransaction::create($data);
-    }
-
-    public function create_error_transaction(Order $order, $action, $payment_platform, $exception) {
-        $data['order_id'] = $order->id;
-        $data['action'] = $action;
-        $data['payment_platform'] = $payment_platform;
-        $data['status'] = OrderTransaction::STATUS_FAIL;
-        $data['details'] = json_encode((array) $exception);
-        return OrderTransaction::create($data);
-    }
-    
 }

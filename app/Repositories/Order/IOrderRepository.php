@@ -1,119 +1,64 @@
 <?php
 namespace App\Repositories\Order;
 
-use App\Order;
+use App\Workflow;
 
 interface IOrderRepository {
-    /**
-     * Find a order by id
-     * 
-     * @param string $refNo
-     * @param bool $details
-     * @param bool $requirement
-     * @param bool $workitems
-     * @return Order
-     */
-    public function find($id, $details = false, $requirement = false, $transactions = false, $workitems = false);
 
     /**
-     * Find a order by reference no
+     * Check if iwo exists
      * 
-     * @param string $refNo
-     * @param bool $details
-     * @param bool $requirement
-     * @return Order
+     * @param Workflow $workflow
+     * @param string $iwo
+     * @param integer $order_id
+     * @return boolean
      */
-    public function findByRefNo($refNo, $details, $requirement, $transactions = false);
+    public function iwoExists(Workflow $workflow, $iwo, $orderId = null);
 
-     /**
+    /**
      * List orders
      * 
+     * @param Workflow $workflow
      * @param array $query
+     * @param boolean $withFiles = false
      * @param boolean $paginate = false
-     * @return array [Order] / LengthAwarePaginator
+     * @return [Orders]
      */
-    public function list($data, $paginate = false);
+    public function list(Workflow $workflow, $query, $withFiles = false, $paginate = false);
 
     /**
-     * Create an order
+     * Retrieve order details
      * 
-     * @param array $cart
-     * @param string $currency
-     * @return Order
+     * @param Workflow $workflow
+     * @param integer $order_id
      */
-    public function create($cart, $currency);
+    public function find(Workflow $workflow, $order_id);
 
-     /**
-     * Update an order
+    /**
+     * Create order
      * 
-     * @param Order $order
+     * @param Workflow $workflow
      * @param array $data
-     * @return void
+     * @param File $files
+     * @return null
      */
-    public function update(Order $order, $data);
+    public function create(Workflow $workflow, $data, $files = null);
 
     /**
-     * Get statistics on orders
+     * Delete order
      * 
-     * @param string $date
-     * @return array
+     * @param Workflow $workflow
+     * @param integer $order_id
+     * @return null
      */
-    public function statistics($date);
+    public function delete(Workflow $workflow, $order_id);
 
     /**
-     * Return counts grouped by statuses
+     * Update order process status
      * 
-     * @param array $statuses
-     * @return array
-     */
-    public function count_by_status(array $statuses);
-
-    /**
-     * Create work item
-     * 
-     * @param Order $order
+     * @param Workflow $workflow
+     * @param integer $order_id
      * @param array $data
-     * @return void
      */
-    public function create_work_item(Order $order, $data);
-
-    /**
-     * Update an order requirement
-     * 
-     * @param Order $order
-     * @param array $data
-     * @return void
-     */
-    public function update_order_requirements(Order $order, $data);
-
-    /**
-     * Create a stripe order transaction
-     * 
-     * @param Order $order
-     * @param string $action - 'pay', 'refund'
-     * @param array payment_data
-     * @return void
-     */
-    public function create_stripe_transaction(Order $order, $action, $payment_data);
-
-    /**
-     * Create a paypal order transaction
-     * 
-     * @param Order $order
-     * @param string $action - 'pay', 'refund'
-     * @param array payment_data
-     * @return void
-     */
-    public function create_paypal_transaction(Order $order, $action, $payment_data);
-
-    /**
-     * Saves an transaction error
-     * 
-     * @param Order $order
-     * @param string $action - 'pay', 'refund'
-     * @param string $payment_platform
-     * @param object $exception
-     * @return void
-     */
-    public function create_error_transaction(Order $order, $action, $payment_platform, $exception);
+    public function updateProcess(Workflow $workflow, $order_id, $data);
 }

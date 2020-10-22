@@ -3,64 +3,69 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-use App\Http\Traits\CustomQuery;
+use App\Workflow;
+use App\OrderFile;
 
 class Order extends Model {
-    use CustomQuery;
 
-    protected $fillable = ['email', 'currency', 'status', 'refNo', 'total', 'password', 'created_at', 'updated_at'];
-
+    protected $guarded = [];
     protected $hidden = [];
-    protected $casts = [
-        'created_at'  => 'datetime:d-m-Y H:i:s',
-        'updated_at' => 'datetime:d-m-Y H:i:s',
-    ];
 
-    // list of properties queryable for datatable
-    public static $queryable = ['email', 'currency', 'status', 'refNo', 'total', 'password', 'created_at', 'updated_at'];
-
-    public const STATUS_PENDING = 'pending';
-    public const STATUS_PAID = 'paid';
-    public const STATUS_REFUNDED = 'refunded';
-    public const STATUS_COMPLETED = 'completed';
-
-    public const STATUSES = [
-        self::STATUS_PENDING,
-        self::STATUS_PAID,
-        self::STATUS_REFUNDED,
-        self::STATUS_COMPLETED
-    ];
-
-    /**
-     * Model events
-     *
-     * @return void
-     */
-    public static function boot() {
-        parent::boot();
+    public function scopeFromTable($query, $tableName) {
+        $this->setTable($tableName);
+        $query->from($tableName.' as orders');
     }
 
-    public function transactions() {
-        return $this->hasMany(OrderTransaction::class);
-    }
+    public function scopeAgGridQuery($query, $data) {
+        unset($data['limit']);
+        unset($data['page']);
 
-    public function requirement() {
-        return $this->hasOne(OrderRequirement::class);
-    }
+        foreach ($data as $key => $value) {
+            $filterData = explode(':', $value);
 
-    public function items() {
-        return $this->hasMany(OrderItem::class);
-    }
+            if (count($filterData) < 2) {
+            }
 
-    public function workitems() {
-        return $this->hasMany(OrderWorkItem::class);
-    }
+            $filterType = strtolower($filterData[0]);
+            $filterVal = $filterData[1];
 
-    public function markAsPaid() {
-        $this->update(['status' => self::STATUS_PAID]);
-    }
+            switch($filterType) {
+                case 'contains':
+                    $query->where($key, 'LIKE', '%'.$filterVal.'%');
+                    break;
+                
+                case 'equals':
+                    if (in_array($key, ['created_at', 'updated_at']))
+                        $query->whereDate($key, $filterVal);
+                    else
+                        $query->where($key, $filterVal);
+                    break;
+                
+                default:
+                    // throw errror
+                    break;
+            }
+        }
 
-    public function markAsCompleted() {
-        $this->update(['status' => self::STATUS_PAID]);
+        if (array_key_exists('sort', $data)) {
+            $sortData = explode(';', $data['sort']);
+            foreach($sortData as $sortDetail) {
+                $sortData = explode(':', $sortDetail);
+                
+                if (count($sortData) < 2) {
+                    // throw exception
+                }
+                $sortCol = $sortData[1];
+                $sortType = $sortData[0];
+
+                $query->orderBy($sortCol, $sortType);
+            }
+        }
+        
+        return $query;
+    }
+    
+    public function files() {
+        return $this->hasMany(OrderFile::class, 'order_id');
     }
 }

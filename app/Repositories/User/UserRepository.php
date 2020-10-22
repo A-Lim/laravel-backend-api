@@ -128,19 +128,12 @@ class UserRepository implements UserRepositoryInterface {
         return $user->avatar;
     }
 
-    // /**
-    //  * Build query based on allowed keys
-    //  * 
-    //  * @param Builder &$query
-    //  * @param array $data
-    //  */
-    // private function buildQuery(&$query, array $data) {
-    //     $allowed = ['name', 'email', 'status'];
+    public function randomizePassword(User $user) {
+        $random_password = Str::random(8);
+        $user->password = Hash::make($random_password);
+        $user->setRememberToken(Str::random(60));
+        $user->save();
 
-    //     foreach ($data as $key => $value) {
-    //         if (in_array($key, $allowed)) {
-    //             $query->where($key, 'LIKE', '%'.$value.'%');
-    //         }
-    //     }
-    // }
+        return $random_password;
+    }
 }

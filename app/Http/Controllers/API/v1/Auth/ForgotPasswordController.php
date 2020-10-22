@@ -68,5 +68,4 @@ class ForgotPasswordController extends ApiController {
 
         return $this->responseWithMessage($statusCode, $message);
     }
-
 }

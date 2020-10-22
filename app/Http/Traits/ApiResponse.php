@@ -5,7 +5,7 @@ use Carbon\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 
 trait ApiResponse {
-    protected $headers = ['Content-Type', 'application/json'];
+    protected $headers = ['Content-Type' => 'application/json'];
 
     public function responseWithRedirect($statusCode, $redirect) {
         return response()

@@ -20,6 +20,7 @@ Route::prefix('v1')->group(function () {
         Route::get('users', 'UserController@list');
         Route::get('users/{user}', 'UserController@details');
         Route::get('profile', 'UserController@profile');
+        Route::post('users/{user}/reset-password', 'UserController@resetPassword');
         Route::patch('profile', 'UserController@updateProfile');
         Route::patch('users/{user}', 'UserController@update');
 
@@ -45,43 +46,31 @@ Route::prefix('v1')->group(function () {
         Route::patch('systemsettings', 'SystemSettingController@update');
     });
 
-    /**** SystemSettings ****/
-    Route::namespace('API\v1\Announcement')->group(function () {
-        Route::get('announcements', 'AnnouncementController@list');
-        Route::get('announcements/{announcement}', 'AnnouncementController@details');
-        Route::post('announcements', 'AnnouncementController@create');
-        Route::patch('announcements/{announcement}', 'AnnouncementController@update');
-        Route::delete('announcements/{announcement}', 'AnnouncementController@delete');
-    });
-
     /**** Permissions ****/
     Route::namespace('API\v1\Permission')->group(function () {
         Route::get('permissions', 'PermissionController@list');
     });
 
-    /**** Products ****/
-     Route::namespace('API\v1\Product')->group(function () {
-        Route::get('products', 'ProductController@list');
-        Route::get('products/{product}', 'ProductController@details');
-        Route::post('products', 'ProductController@create');
-        Route::patch('products/{product}', 'ProductController@update');
-        Route::delete('products/{product}', 'ProductController@delete');
-    });
-
-    /**** Contacts ****/
-    Route::namespace('API\v1\Contact')->group(function () {
-        Route::get('contacts', 'ContactController@list');
-        Route::get('contacts/{contact}', 'ContactController@details');
+    /**** Workflows ****/
+    Route::namespace('API\v1\Workflow')->group(function () {
+        Route::get('workflows', 'WorkflowController@list');
+        Route::get('workflows/sidemenu', 'WorkflowController@workflow_menu');
+        Route::get('workflows/{workflow}', 'WorkflowController@details');
+        Route::post('workflows', 'WorkflowController@create');
+        Route::post('workflows/exists', 'WorkflowController@exists');
+        Route::patch('workflows/{workflow}', 'WorkflowController@update');
+        Route::patch('workflows/{workflow}/activate', 'WorkflowController@activate');
+        Route::patch('workflows/{workflow}/deactivate', 'WorkflowController@deactivate');
+        Route::delete('workflows/{workflow}', 'WorkflowController@delete');
     });
 
     /**** Orders ****/
     Route::namespace('API\v1\Order')->group(function () {
-        Route::get('orders', 'OrderController@list');
-        Route::get('orders/statistics', 'OrderController@statistics');
-        Route::get('orders/badges', 'OrderController@badges');
-        Route::get('orders/{order}', 'OrderController@details');
-
-        Route::post('orders/{order}/workitem', 'OrderController@submit_work_item');
+        Route::get('workflows/{workflow}/orders', 'OrderController@list');
+        Route::get('workflows/{workflow}/orders/{id}', 'OrderController@details');
+        Route::post('workflows/{workflow}/orders', 'OrderController@create');
+        Route::post('workflows/{workflow}/orders/exists', 'OrderController@exists');
+        Route::patch('workflows/{workflow}/orders/{id}/updateprocess', 'OrderController@updateProcess');
+        Route::delete('workflows/{workflow}/orders/{id}', 'OrderController@delete');
     });
-
 });

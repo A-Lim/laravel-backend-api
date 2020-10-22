@@ -86,4 +86,10 @@ class UserController extends ApiController {
         return $this->responseWithMessageAndData(200, $userResource, 'User updated.'); 
     }
 
+    public function resetPassword(Request $request, User $user) {
+        $this->authorize('update', $user);
+        $random_password = $this->userRepository->randomizePassword($user);
+        return $this->responseWithData(200, $random_password);
+    }
+
 }
